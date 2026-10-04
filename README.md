@@ -34,6 +34,7 @@ stopper (maximiser). Spec: `adversarial_american_hedging_mvp.md`.
     run_all.sh       pipeline for the stages implemented so far
     run_grid.sh      step-4 grid (grid_jobs.txt, grid_job.sh: one cell = GDA + fresh-adversary attack)
     grid_fix_job.sh  re-run of a cell with adversary restarts (train.adv_restart_every, off by default)
+    frontend/        static dashboard: adversarial vs LSM-trained hedge under attack (see below)
 
 ## Quick start
 
@@ -53,6 +54,15 @@ stopper (maximiser). Spec: `adversarial_american_hedging_mvp.md`.
 
 The held-out test sets (2^18 paths per lam, ~107 MB each) are generated on first use into `data/`
 from a fixed seed and are not committed.
+
+## Dashboard
+
+`frontend/index.html` compares the adversarial (GDA) hedger with the LSM-trained baseline under attack,
+for each headline setting (frictionless, c = 0.5%, c = 0.5% + unwind, liquidity 'base' + unwind). It reads
+`frontend/data.js`, which is generated from `results/headline*.json` and `results/logs/` (stdlib only, no torch):
+
+    python frontend/build_data.py      # re-run after evaluate.py --mode headline
+    open frontend/index.html           # or: python -m http.server -d frontend
 
 ## Conventions and implementation choices
 
