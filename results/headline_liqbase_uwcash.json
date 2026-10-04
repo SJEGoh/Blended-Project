@@ -1,0 +1,281 @@
+{
+ "lam": 1.0,
+ "alpha": 0.9,
+ "c": 0.0,
+ "unwind": "cash",
+ "suffix": "_liqbase_uwcash",
+ "liquidity": {
+  "enabled": true,
+  "name": "base",
+  "cost_scale": 1.0,
+  "s0": 0.0005,
+  "Y": 1.0,
+  "psi": 0.05,
+  "kappa": 20.0,
+  "eta": 1.0,
+  "beta_down": 15.0,
+  "h_mult": 2.0,
+  "gamma_v": 0.3,
+  "zeta": 0.2,
+  "ewma_w": 0.3,
+  "zcap": 10.0,
+  "ell_max": 10.0,
+  "sig_ratio_max": 4.0,
+  "sigma_ref": 0.2,
+  "seed_offset": 7777
+ },
+ "tag": "reduced",
+ "batch_log2": 12,
+ "outer_iters": 1500,
+ "hedgers": [
+  {
+   "source": "gda",
+   "label": "adversarial (GDA)",
+   "trained_against": "own adversary (GDA stopper)",
+   "trained_cvar": 15.123368214569586,
+   "trained_se": 0.027476014997391458,
+   "evals": {
+    "own adversary (GDA stopper)": {
+     "cvar": 15.123368214569586,
+     "se": 0.027476014997391458,
+     "mean_ex_time": 0.4853096389770508,
+     "frac_early": 0.058246612548828125
+    },
+    "fresh adversary": {
+     "cvar": 15.036294109367038,
+     "se": 0.027195871488666402,
+     "mean_ex_time": 0.4761026382446289,
+     "frac_early": 0.11072540283203125
+    },
+    "never early (tau = T)": {
+     "cvar": 14.770323119744667,
+     "se": 0.029251284320957426,
+     "mean_ex_time": 0.5,
+     "frac_early": 0.0
+    },
+    "LSM rule": {
+     "cvar": 14.721242471608,
+     "se": 0.026273866471165978,
+     "mean_ex_time": 0.4341167449951172,
+     "frac_early": 0.3360595703125
+    },
+    "P&L threshold (validation-fitted)": {
+     "cvar": 14.89080595529059,
+     "se": 0.026449148193026063,
+     "mean_ex_time": 0.48618377685546876,
+     "frac_early": 0.0575714111328125
+    },
+    "illiquidity threshold (validation-fitted)": {
+     "cvar": 14.554384478325838,
+     "se": 0.02499662542676715,
+     "mean_ex_time": 0.46795475006103515,
+     "frac_early": 0.12523651123046875
+    },
+    "post-decline (validation-fitted)": {
+     "cvar": 14.821589668757039,
+     "se": 0.026842951736060227,
+     "mean_ex_time": 0.4886563110351563,
+     "frac_early": 0.0448150634765625
+    }
+   },
+   "worst_attack": "own adversary (GDA stopper)",
+   "worst_cvar": 15.123368214569586,
+   "worst_se": 0.027476014997391458,
+   "rise": 0.0,
+   "rise_se": 0.0,
+   "rel_rise": 0.0,
+   "train_minutes": 73.5
+  },
+  {
+   "source": "fixed-lsm",
+   "label": "trained vs LSM rule",
+   "trained_against": "LSM rule",
+   "trained_cvar": 14.649876931376205,
+   "trained_se": 0.025966538415721746,
+   "evals": {
+    "fresh adversary": {
+     "cvar": 15.302527172074798,
+     "se": 0.027268275571887834,
+     "mean_ex_time": 0.4813748550415039,
+     "frac_early": 0.08137130737304688
+    },
+    "never early (tau = T)": {
+     "cvar": 14.534327508546959,
+     "se": 0.0283768851626234,
+     "mean_ex_time": 0.5,
+     "frac_early": 0.0
+    },
+    "LSM rule": {
+     "cvar": 14.649876931376205,
+     "se": 0.025966538415721746,
+     "mean_ex_time": 0.4341167449951172,
+     "frac_early": 0.3360595703125
+    },
+    "P&L threshold (validation-fitted)": {
+     "cvar": 14.968353499362152,
+     "se": 0.026536514825664718,
+     "mean_ex_time": 0.48437553405761724,
+     "frac_early": 0.06341934204101562
+    },
+    "illiquidity threshold (validation-fitted)": {
+     "cvar": 14.560748687437103,
+     "se": 0.024801455732860564,
+     "mean_ex_time": 0.46795475006103515,
+     "frac_early": 0.12523651123046875
+    },
+    "post-decline (validation-fitted)": {
+     "cvar": 14.816055355112038,
+     "se": 0.026865691628698125,
+     "mean_ex_time": 0.4886563110351563,
+     "frac_early": 0.0448150634765625
+    }
+   },
+   "worst_attack": "fresh adversary",
+   "worst_cvar": 15.302527172074798,
+   "worst_se": 0.027268275571887834,
+   "rise": 0.652650240698593,
+   "rise_se": 0.009784112699663146,
+   "rel_rise": 0.044549878729751434,
+   "train_minutes": 6.3,
+   "vs_adv_under_fresh": 0.2662330627077605,
+   "vs_adv_under_fresh_se": 0.006313300308217324
+  },
+  {
+   "source": "fixed-maturity",
+   "label": "trained vs hold-to-maturity",
+   "trained_against": "never early (tau = T)",
+   "trained_cvar": 14.231993524404784,
+   "trained_se": 0.028176471081573857,
+   "evals": {
+    "fresh adversary": {
+     "cvar": 15.893302885903536,
+     "se": 0.026710407669369718,
+     "mean_ex_time": 0.47544395446777343,
+     "frac_early": 0.0982208251953125
+    },
+    "never early (tau = T)": {
+     "cvar": 14.231993524404784,
+     "se": 0.028176471081573857,
+     "mean_ex_time": 0.5,
+     "frac_early": 0.0
+    },
+    "LSM rule": {
+     "cvar": 14.796712455844098,
+     "se": 0.02694346939303059,
+     "mean_ex_time": 0.4341167449951172,
+     "frac_early": 0.3360595703125
+    },
+    "P&L threshold (validation-fitted)": {
+     "cvar": 15.278087656856743,
+     "se": 0.023783361082521094,
+     "mean_ex_time": 0.47530609130859375,
+     "frac_early": 0.09221267700195312
+    },
+    "illiquidity threshold (validation-fitted)": {
+     "cvar": 14.609292411003862,
+     "se": 0.025773602556820423,
+     "mean_ex_time": 0.46795475006103515,
+     "frac_early": 0.12523651123046875
+    },
+    "post-decline (validation-fitted)": {
+     "cvar": 14.750826748140936,
+     "se": 0.0269196868892171,
+     "mean_ex_time": 0.4824355697631836,
+     "frac_early": 0.068878173828125
+    }
+   },
+   "worst_attack": "fresh adversary",
+   "worst_cvar": 15.893302885903536,
+   "worst_se": 0.026710407669369718,
+   "rise": 1.661309361498752,
+   "rise_se": 0.011947748324121354,
+   "rel_rise": 0.11673061533157435,
+   "train_minutes": 5.7,
+   "vs_adv_under_fresh": 0.8570087765364978,
+   "vs_adv_under_fresh_se": 0.009138800555805045
+  }
+ ],
+ "no_hedge": {
+  "never early (tau = T)": 30.40186466081306,
+  "LSM rule": 25.453527195603996,
+  "P&L threshold (validation-fitted)": 30.597549747272797
+ },
+ "hedge_by_liquidity": {
+  "edges": [
+   0.0,
+   1.25,
+   2.0,
+   4.0,
+   8.0,
+   "inf"
+  ],
+  "by_hedger": {
+   "adversarial (GDA)": [
+    {
+     "n": 1370029,
+     "mean_delta": -0.9281033277511597
+    },
+    {
+     "n": 414587,
+     "mean_delta": -0.8801518678665161
+    },
+    {
+     "n": 149677,
+     "mean_delta": -0.6609808206558228
+    },
+    {
+     "n": 77241,
+     "mean_delta": -0.47488728165626526
+    },
+    {
+     "n": 36006,
+     "mean_delta": -0.4121485650539398
+    }
+   ],
+   "trained vs LSM rule": [
+    {
+     "n": 1370029,
+     "mean_delta": -0.8128138184547424
+    },
+    {
+     "n": 414587,
+     "mean_delta": -0.7884035706520081
+    },
+    {
+     "n": 149677,
+     "mean_delta": -0.6596249938011169
+    },
+    {
+     "n": 77241,
+     "mean_delta": -0.533238410949707
+    },
+    {
+     "n": 36006,
+     "mean_delta": -0.5036101937294006
+    }
+   ],
+   "trained vs hold-to-maturity": [
+    {
+     "n": 1370029,
+     "mean_delta": -0.8799657821655273
+    },
+    {
+     "n": 414587,
+     "mean_delta": -0.8626362085342407
+    },
+    {
+     "n": 149677,
+     "mean_delta": -0.7503071427345276
+    },
+    {
+     "n": 77241,
+     "mean_delta": -0.6619268655776978
+    },
+    {
+     "n": 36006,
+     "mean_delta": -0.6284772157669067
+    }
+   ]
+  }
+ }
+}

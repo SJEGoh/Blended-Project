@@ -1,0 +1,817 @@
+{
+ "alpha": 0.9,
+ "regression_p_star": [
+  13.52650853600321,
+  0.026514467891873398
+ ],
+ "rows": [
+  {
+   "unwind": "none",
+   "cost_scale": 0.0,
+   "hedger": "frictionless NN hedge",
+   "cvar": {
+    "never early": 13.239892430026272,
+    "LSM rule": 13.421834547074496,
+    "spot boundary": 13.491994637295237,
+    "P&L threshold": 13.350149403131352,
+    "illiquidity threshold": 13.355903085224414,
+    "post-decline": 13.481141219283705
+   },
+   "se": {
+    "never early": 0.02590719689534283,
+    "LSM rule": 0.02609797769817653,
+    "spot boundary": 0.026498688090035537,
+    "P&L threshold": 0.025471323737669905,
+    "illiquidity threshold": 0.025845049087917467,
+    "post-decline": 0.026322523388560056
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.010853418011532057,
+   "liq_rule_edge_se": 0.0042379182017139045,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 77.0,
+    "P&L threshold": 11.854630137076756,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.26999999999999996
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.13169479370117188,
+    "P&L threshold": 0.06525421142578125,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.06232452392578125
+   }
+  },
+  {
+   "unwind": "none",
+   "cost_scale": 0.0,
+   "hedger": "no hedge",
+   "cvar": {
+    "never early": 30.401864652326264,
+    "LSM rule": 25.45352719532677,
+    "spot boundary": 30.599158780965418,
+    "P&L threshold": 30.593274548370694,
+    "illiquidity threshold": 28.827149485286675,
+    "post-decline": 30.12127421181006
+   },
+   "se": {
+    "never early": 0.07040788184600526,
+    "LSM rule": 0.05357506074041563,
+    "spot boundary": 0.06724824594629594,
+    "P&L threshold": 0.06436607536139202,
+    "illiquidity threshold": 0.054030856179129234,
+    "post-decline": 0.062206151054835485
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.47788456915535704,
+   "liq_rule_edge_se": 0.02597454310127931,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 65.0,
+    "P&L threshold": 32.14098990044227,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.036449432373046875,
+    "P&L threshold": 0.0490570068359375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "none",
+   "cost_scale": 0.5,
+   "hedger": "frictionless NN hedge",
+   "cvar": {
+    "never early": 13.919701826702019,
+    "LSM rule": 13.80282612923741,
+    "spot boundary": 14.048651640937685,
+    "P&L threshold": 13.904691913203841,
+    "illiquidity threshold": 13.561372975850183,
+    "post-decline": 13.868191340568524
+   },
+   "se": {
+    "never early": 0.028090144211906375,
+    "LSM rule": 0.026816690770743286,
+    "spot boundary": 0.028026421782064076,
+    "P&L threshold": 0.027694155495762655,
+    "illiquidity threshold": 0.02589410314261653,
+    "post-decline": 0.02684372543601501
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.18046030036916072,
+   "liq_rule_edge_se": 0.004011979136886478,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 72.0,
+    "P&L threshold": 23.23673967742941,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.08009719848632812,
+    "P&L threshold": 0.002941131591796875,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "none",
+   "cost_scale": 0.5,
+   "hedger": "no hedge",
+   "cvar": {
+    "never early": 30.401864652326264,
+    "LSM rule": 25.45352719532677,
+    "spot boundary": 30.599158780965418,
+    "P&L threshold": 30.593274548370694,
+    "illiquidity threshold": 28.827149485286675,
+    "post-decline": 30.12127421181006
+   },
+   "se": {
+    "never early": 0.07040788184600526,
+    "LSM rule": 0.05357506074041563,
+    "spot boundary": 0.06724824594629594,
+    "P&L threshold": 0.06436607536139202,
+    "illiquidity threshold": 0.054030856179129234,
+    "post-decline": 0.062206151054835485
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.47788456915535704,
+   "liq_rule_edge_se": 0.02597454310127931,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 65.0,
+    "P&L threshold": 32.14098990044227,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.036449432373046875,
+    "P&L threshold": 0.0490570068359375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "none",
+   "cost_scale": 1.0,
+   "hedger": "frictionless NN hedge",
+   "cvar": {
+    "never early": 14.652840669542101,
+    "LSM rule": 14.217503050513653,
+    "spot boundary": 14.721139404861477,
+    "P&L threshold": 14.623825123772557,
+    "illiquidity threshold": 13.77505890062104,
+    "post-decline": 14.315127785679222
+   },
+   "se": {
+    "never early": 0.030334980916719583,
+    "LSM rule": 0.02768303851164682,
+    "spot boundary": 0.030081783717017772,
+    "P&L threshold": 0.029636104733622024,
+    "illiquidity threshold": 0.025968790358517006,
+    "post-decline": 0.027028009377063778
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.40601161918225515,
+   "liq_rule_edge_se": 0.006479052508205109,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 69.0,
+    "P&L threshold": 24.20439752769511,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.058040618896484375,
+    "P&L threshold": 0.00308990478515625,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "none",
+   "cost_scale": 1.0,
+   "hedger": "no hedge",
+   "cvar": {
+    "never early": 30.401864652326264,
+    "LSM rule": 25.45352719532677,
+    "spot boundary": 30.599158780965418,
+    "P&L threshold": 30.593274548370694,
+    "illiquidity threshold": 28.827149485286675,
+    "post-decline": 30.12127421181006
+   },
+   "se": {
+    "never early": 0.07040788184600526,
+    "LSM rule": 0.05357506074041563,
+    "spot boundary": 0.06724824594629594,
+    "P&L threshold": 0.06436607536139202,
+    "illiquidity threshold": 0.054030856179129234,
+    "post-decline": 0.062206151054835485
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.47788456915535704,
+   "liq_rule_edge_se": 0.02597454310127931,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 65.0,
+    "P&L threshold": 32.14098990044227,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.036449432373046875,
+    "P&L threshold": 0.0490570068359375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "none",
+   "cost_scale": 2.0,
+   "hedger": "frictionless NN hedge",
+   "cvar": {
+    "never early": 16.236634555673316,
+    "LSM rule": 15.138520760602585,
+    "spot boundary": 16.26981125565492,
+    "P&L threshold": 16.192705909173135,
+    "illiquidity threshold": 14.234475139222845,
+    "post-decline": 15.334056159955683
+   },
+   "se": {
+    "never early": 0.03480888018421884,
+    "LSM rule": 0.029954525533748683,
+    "spot boundary": 0.03474708139922392,
+    "P&L threshold": 0.033803304869242136,
+    "illiquidity threshold": 0.026130198664881206,
+    "post-decline": 0.027785204245932272
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.9357550956992355,
+   "liq_rule_edge_se": 0.012273438022579655,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 62.0,
+    "P&L threshold": 26.43896114540102,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.024658203125,
+    "P&L threshold": 0.003253936767578125,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "none",
+   "cost_scale": 2.0,
+   "hedger": "no hedge",
+   "cvar": {
+    "never early": 30.401864652326264,
+    "LSM rule": 25.45352719532677,
+    "spot boundary": 30.599158780965418,
+    "P&L threshold": 30.593274548370694,
+    "illiquidity threshold": 28.827149485286675,
+    "post-decline": 30.12127421181006
+   },
+   "se": {
+    "never early": 0.07040788184600526,
+    "LSM rule": 0.05357506074041563,
+    "spot boundary": 0.06724824594629594,
+    "P&L threshold": 0.06436607536139202,
+    "illiquidity threshold": 0.054030856179129234,
+    "post-decline": 0.062206151054835485
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.47788456915535704,
+   "liq_rule_edge_se": 0.02597454310127931,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 65.0,
+    "P&L threshold": 32.14098990044227,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.036449432373046875,
+    "P&L threshold": 0.0490570068359375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "none",
+   "cost_scale": 4.0,
+   "hedger": "frictionless NN hedge",
+   "cvar": {
+    "never early": 19.658944006073504,
+    "LSM rule": 17.23471376592595,
+    "spot boundary": 19.659775920462657,
+    "P&L threshold": 19.612614260914896,
+    "illiquidity threshold": 15.328002886796712,
+    "post-decline": 17.71680332200572
+   },
+   "se": {
+    "never early": 0.04432197430194128,
+    "LSM rule": 0.03674419127031962,
+    "spot boundary": 0.04420912554040252,
+    "P&L threshold": 0.04333878605158813,
+    "illiquidity threshold": 0.026874042285128345,
+    "post-decline": 0.03227119578559214
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -1.9429725984569366,
+   "liq_rule_edge_se": 0.023719320860547642,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 60.0,
+    "P&L threshold": 31.684123279571644,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.018707275390625,
+    "P&L threshold": 0.003704071044921875,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "none",
+   "cost_scale": 4.0,
+   "hedger": "no hedge",
+   "cvar": {
+    "never early": 30.401864652326264,
+    "LSM rule": 25.45352719532677,
+    "spot boundary": 30.599158780965418,
+    "P&L threshold": 30.593274548370694,
+    "illiquidity threshold": 28.827149485286675,
+    "post-decline": 30.12127421181006
+   },
+   "se": {
+    "never early": 0.07040788184600526,
+    "LSM rule": 0.05357506074041563,
+    "spot boundary": 0.06724824594629594,
+    "P&L threshold": 0.06436607536139202,
+    "illiquidity threshold": 0.054030856179129234,
+    "post-decline": 0.062206151054835485
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.47788456915535704,
+   "liq_rule_edge_se": 0.02597454310127931,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 65.0,
+    "P&L threshold": 32.14098990044227,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.036449432373046875,
+    "P&L threshold": 0.0490570068359375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "cash",
+   "cost_scale": 0.0,
+   "hedger": "frictionless NN hedge",
+   "cvar": {
+    "never early": 13.239892430026272,
+    "LSM rule": 13.421834547074496,
+    "spot boundary": 13.491994637295237,
+    "P&L threshold": 13.350149403131352,
+    "illiquidity threshold": 13.355903085224414,
+    "post-decline": 13.481141219283705
+   },
+   "se": {
+    "never early": 0.02590719689534283,
+    "LSM rule": 0.02609797769817653,
+    "spot boundary": 0.026498688090035537,
+    "P&L threshold": 0.025471323737669905,
+    "illiquidity threshold": 0.025845049087917467,
+    "post-decline": 0.026322523388560056
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.010853418011532057,
+   "liq_rule_edge_se": 0.0042379182017139045,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 77.0,
+    "P&L threshold": 11.854630137076756,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.26999999999999996
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.13169479370117188,
+    "P&L threshold": 0.06525421142578125,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.06232452392578125
+   }
+  },
+  {
+   "unwind": "cash",
+   "cost_scale": 0.0,
+   "hedger": "no hedge",
+   "cvar": {
+    "never early": 30.401864652326264,
+    "LSM rule": 25.45352719532677,
+    "spot boundary": 30.599158780965418,
+    "P&L threshold": 30.593274548370694,
+    "illiquidity threshold": 28.827149485286675,
+    "post-decline": 30.12127421181006
+   },
+   "se": {
+    "never early": 0.07040788184600526,
+    "LSM rule": 0.05357506074041563,
+    "spot boundary": 0.06724824594629594,
+    "P&L threshold": 0.06436607536139202,
+    "illiquidity threshold": 0.054030856179129234,
+    "post-decline": 0.062206151054835485
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.47788456915535704,
+   "liq_rule_edge_se": 0.02597454310127931,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 65.0,
+    "P&L threshold": 32.14098990044227,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.036449432373046875,
+    "P&L threshold": 0.0490570068359375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "cash",
+   "cost_scale": 0.5,
+   "hedger": "frictionless NN hedge",
+   "cvar": {
+    "never early": 14.179380396425143,
+    "LSM rule": 14.378402867081647,
+    "spot boundary": 14.561528044603673,
+    "P&L threshold": 14.951231462710371,
+    "illiquidity threshold": 13.972595517407521,
+    "post-decline": 14.259109138264675
+   },
+   "se": {
+    "never early": 0.029040581639253788,
+    "LSM rule": 0.02755943393479804,
+    "spot boundary": 0.029129357402051487,
+    "P&L threshold": 0.022531444337518327,
+    "illiquidity threshold": 0.026242326580245105,
+    "post-decline": 0.027754274084371443
+   },
+   "strongest": "P&L threshold",
+   "liq_rule_edge": -0.6921223244456964,
+   "liq_rule_edge_se": 0.011779860065829782,
+   "liq_rule": "post-decline",
+   "base_rule": "P&L threshold",
+   "fitted": {
+    "spot boundary": 73.0,
+    "P&L threshold": 12.842459365184503,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.08881759643554688,
+    "P&L threshold": 0.09432220458984375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "cash",
+   "cost_scale": 0.5,
+   "hedger": "no hedge",
+   "cvar": {
+    "never early": 30.401864652326264,
+    "LSM rule": 25.45352719532677,
+    "spot boundary": 30.599158780965418,
+    "P&L threshold": 30.593274548370694,
+    "illiquidity threshold": 28.827149485286675,
+    "post-decline": 30.12127421181006
+   },
+   "se": {
+    "never early": 0.07040788184600526,
+    "LSM rule": 0.05357506074041563,
+    "spot boundary": 0.06724824594629594,
+    "P&L threshold": 0.06436607536139202,
+    "illiquidity threshold": 0.054030856179129234,
+    "post-decline": 0.062206151054835485
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.47788456915535704,
+   "liq_rule_edge_se": 0.02597454310127931,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 65.0,
+    "P&L threshold": 32.14098990044227,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.036449432373046875,
+    "P&L threshold": 0.0490570068359375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "cash",
+   "cost_scale": 1.0,
+   "hedger": "frictionless NN hedge",
+   "cvar": {
+    "never early": 15.2683764183951,
+    "LSM rule": 15.516831535631843,
+    "spot boundary": 15.828633063471138,
+    "P&L threshold": 18.19780418971511,
+    "illiquidity threshold": 14.692119875487176,
+    "post-decline": 15.192213324983907
+   },
+   "se": {
+    "never early": 0.03266825468441822,
+    "LSM rule": 0.029349932178280597,
+    "spot boundary": 0.03193663018778898,
+    "P&L threshold": 0.035862968566211274,
+    "illiquidity threshold": 0.026081336919061924,
+    "post-decline": 0.028880075033056053
+   },
+   "strongest": "P&L threshold",
+   "liq_rule_edge": -3.0055908647312037,
+   "liq_rule_edge_se": 0.02190392194067529,
+   "liq_rule": "post-decline",
+   "base_rule": "P&L threshold",
+   "fitted": {
+    "spot boundary": 73.0,
+    "P&L threshold": 16.273415871546817,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.08881759643554688,
+    "P&L threshold": 0.08315277099609375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "cash",
+   "cost_scale": 1.0,
+   "hedger": "no hedge",
+   "cvar": {
+    "never early": 30.401864652326264,
+    "LSM rule": 25.45352719532677,
+    "spot boundary": 30.599158780965418,
+    "P&L threshold": 30.593274548370694,
+    "illiquidity threshold": 28.827149485286675,
+    "post-decline": 30.12127421181006
+   },
+   "se": {
+    "never early": 0.07040788184600526,
+    "LSM rule": 0.05357506074041563,
+    "spot boundary": 0.06724824594629594,
+    "P&L threshold": 0.06436607536139202,
+    "illiquidity threshold": 0.054030856179129234,
+    "post-decline": 0.062206151054835485
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.47788456915535704,
+   "liq_rule_edge_se": 0.02597454310127931,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 65.0,
+    "P&L threshold": 32.14098990044227,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.036449432373046875,
+    "P&L threshold": 0.0490570068359375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "cash",
+   "cost_scale": 2.0,
+   "hedger": "frictionless NN hedge",
+   "cvar": {
+    "never early": 17.67631704165648,
+    "LSM rule": 18.00493111789579,
+    "spot boundary": 18.59824722129244,
+    "P&L threshold": 25.45271712097075,
+    "illiquidity threshold": 16.35830053714721,
+    "post-decline": 17.285390380591625
+   },
+   "se": {
+    "never early": 0.04104824768913062,
+    "LSM rule": 0.034935110839261825,
+    "spot boundary": 0.03909545797281934,
+    "P&L threshold": 0.03352209529870892,
+    "illiquidity threshold": 0.024659237820702562,
+    "post-decline": 0.032099448248293444
+   },
+   "strongest": "P&L threshold",
+   "liq_rule_edge": -8.167326740379124,
+   "liq_rule_edge_se": 0.03097861660126643,
+   "liq_rule": "post-decline",
+   "base_rule": "P&L threshold",
+   "fitted": {
+    "spot boundary": 73.0,
+    "P&L threshold": 19.08481275353065,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.08881759643554688,
+    "P&L threshold": 0.1274566650390625,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "cash",
+   "cost_scale": 2.0,
+   "hedger": "no hedge",
+   "cvar": {
+    "never early": 30.401864652326264,
+    "LSM rule": 25.45352719532677,
+    "spot boundary": 30.599158780965418,
+    "P&L threshold": 30.593274548370694,
+    "illiquidity threshold": 28.827149485286675,
+    "post-decline": 30.12127421181006
+   },
+   "se": {
+    "never early": 0.07040788184600526,
+    "LSM rule": 0.05357506074041563,
+    "spot boundary": 0.06724824594629594,
+    "P&L threshold": 0.06436607536139202,
+    "illiquidity threshold": 0.054030856179129234,
+    "post-decline": 0.062206151054835485
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.47788456915535704,
+   "liq_rule_edge_se": 0.02597454310127931,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 65.0,
+    "P&L threshold": 32.14098990044227,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.036449432373046875,
+    "P&L threshold": 0.0490570068359375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "cash",
+   "cost_scale": 4.0,
+   "hedger": "frictionless NN hedge",
+   "cvar": {
+    "never early": 22.87822681309134,
+    "LSM rule": 23.418601446026226,
+    "spot boundary": 24.592309332612405,
+    "P&L threshold": 41.16378009046009,
+    "illiquidity threshold": 20.285336408264055,
+    "post-decline": 21.8758554638694
+   },
+   "se": {
+    "never early": 0.06173833974961189,
+    "LSM rule": 0.051012950243779685,
+    "spot boundary": 0.056726952035415744,
+    "P&L threshold": 0.05975408918444693,
+    "illiquidity threshold": 0.02375468512438423,
+    "post-decline": 0.044338876672706806
+   },
+   "strongest": "P&L threshold",
+   "liq_rule_edge": -19.287924626590687,
+   "liq_rule_edge_se": 0.053082657883295345,
+   "liq_rule": "post-decline",
+   "base_rule": "P&L threshold",
+   "fitted": {
+    "spot boundary": 73.0,
+    "P&L threshold": 24.955173713390643,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.08881759643554688,
+    "P&L threshold": 0.14824295043945312,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  },
+  {
+   "unwind": "cash",
+   "cost_scale": 4.0,
+   "hedger": "no hedge",
+   "cvar": {
+    "never early": 30.401864652326264,
+    "LSM rule": 25.45352719532677,
+    "spot boundary": 30.599158780965418,
+    "P&L threshold": 30.593274548370694,
+    "illiquidity threshold": 28.827149485286675,
+    "post-decline": 30.12127421181006
+   },
+   "se": {
+    "never early": 0.07040788184600526,
+    "LSM rule": 0.05357506074041563,
+    "spot boundary": 0.06724824594629594,
+    "P&L threshold": 0.06436607536139202,
+    "illiquidity threshold": 0.054030856179129234,
+    "post-decline": 0.062206151054835485
+   },
+   "strongest": "spot boundary",
+   "liq_rule_edge": -0.47788456915535704,
+   "liq_rule_edge_se": 0.02597454310127931,
+   "liq_rule": "post-decline",
+   "base_rule": "spot boundary",
+   "fitted": {
+    "spot boundary": 65.0,
+    "P&L threshold": 32.14098990044227,
+    "illiquidity threshold": 10.000000000000002,
+    "post-decline": 0.3
+   },
+   "early_frac": {
+    "never early": 0.0,
+    "LSM rule": 0.3360595703125,
+    "spot boundary": 0.036449432373046875,
+    "P&L threshold": 0.0490570068359375,
+    "illiquidity threshold": 0.12523651123046875,
+    "post-decline": 0.0448150634765625
+   }
+  }
+ ],
+ "liquidity": {
+  "name": "base",
+  "ell_max": 10.0,
+  "sig_ratio_max": 4.0,
+  "s0": 0.0005,
+  "Y": 1.0,
+  "psi": 0.05
+ }
+}

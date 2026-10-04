@@ -1,0 +1,146 @@
+{
+ "lam": 1.0,
+ "alpha": 0.9,
+ "c": 0.005,
+ "suffix": "_c0.005",
+ "tag": "reduced",
+ "batch_log2": 12,
+ "outer_iters": 1500,
+ "hedgers": [
+  {
+   "source": "gda",
+   "label": "adversarial (GDA)",
+   "trained_against": "own adversary (GDA stopper)",
+   "trained_cvar": 14.401002563012367,
+   "trained_se": 0.02584408261773251,
+   "evals": {
+    "own adversary (GDA stopper)": {
+     "cvar": 14.401002563012367,
+     "se": 0.02584408261773251,
+     "mean_ex_time": 0.48433555603027345,
+     "frac_early": 0.07413101196289062
+    },
+    "fresh adversary": {
+     "cvar": 14.37043319780727,
+     "se": 0.025830543628642684,
+     "mean_ex_time": 0.4774422454833984,
+     "frac_early": 0.13010787963867188
+    },
+    "never early (tau = T)": {
+     "cvar": 14.136859456414648,
+     "se": 0.025344321011141323,
+     "mean_ex_time": 0.5,
+     "frac_early": 0.0
+    },
+    "LSM rule": {
+     "cvar": 14.217575296972763,
+     "se": 0.025180575708651332,
+     "mean_ex_time": 0.4341167449951172,
+     "frac_early": 0.3360595703125
+    },
+    "P&L threshold (validation-fitted)": {
+     "cvar": 14.161425933932476,
+     "se": 0.02484046709351909,
+     "mean_ex_time": 0.4921649932861328,
+     "frac_early": 0.032756805419921875
+    }
+   },
+   "worst_attack": "own adversary (GDA stopper)",
+   "worst_cvar": 14.401002563012367,
+   "worst_se": 0.02584408261773251,
+   "rise": 0.0,
+   "rise_se": 0.0,
+   "rel_rise": 0.0,
+   "train_minutes": 67.8
+  },
+  {
+   "source": "fixed-lsm",
+   "label": "trained vs LSM rule",
+   "trained_against": "LSM rule",
+   "trained_cvar": 14.191458876851904,
+   "trained_se": 0.02519937207994604,
+   "evals": {
+    "fresh adversary": {
+     "cvar": 14.408320185457411,
+     "se": 0.025854845253046318,
+     "mean_ex_time": 0.48095279693603515,
+     "frac_early": 0.11200332641601562
+    },
+    "never early (tau = T)": {
+     "cvar": 14.180041636762196,
+     "se": 0.025655156007012327,
+     "mean_ex_time": 0.5,
+     "frac_early": 0.0
+    },
+    "LSM rule": {
+     "cvar": 14.191458876851904,
+     "se": 0.02519937207994604,
+     "mean_ex_time": 0.4341167449951172,
+     "frac_early": 0.3360595703125
+    },
+    "P&L threshold (validation-fitted)": {
+     "cvar": 14.261494408439594,
+     "se": 0.02488653646261815,
+     "mean_ex_time": 0.4876650238037109,
+     "frac_early": 0.049373626708984375
+    }
+   },
+   "worst_attack": "fresh adversary",
+   "worst_cvar": 14.408320185457411,
+   "worst_se": 0.025854845253046318,
+   "rise": 0.21686130860550712,
+   "rise_se": 0.007030647985430994,
+   "rel_rise": 0.015281114541313003,
+   "train_minutes": 5.3,
+   "vs_adv_under_fresh": 0.037886987650141535,
+   "vs_adv_under_fresh_se": 0.003852866749250197
+  },
+  {
+   "source": "fixed-maturity",
+   "label": "trained vs hold-to-maturity",
+   "trained_against": "never early (tau = T)",
+   "trained_cvar": 14.114056338387183,
+   "trained_se": 0.025538506523649324,
+   "evals": {
+    "fresh adversary": {
+     "cvar": 14.380049753016287,
+     "se": 0.02607917105681219,
+     "mean_ex_time": 0.4761959838867188,
+     "frac_early": 0.13818359375
+    },
+    "never early (tau = T)": {
+     "cvar": 14.114056338387183,
+     "se": 0.025538506523649324,
+     "mean_ex_time": 0.5,
+     "frac_early": 0.0
+    },
+    "LSM rule": {
+     "cvar": 14.218024530361655,
+     "se": 0.025487250980246935,
+     "mean_ex_time": 0.4341167449951172,
+     "frac_early": 0.3360595703125
+    },
+    "P&L threshold (validation-fitted)": {
+     "cvar": 14.169211669680319,
+     "se": 0.025091901771829104,
+     "mean_ex_time": 0.4886835861206055,
+     "frac_early": 0.04571533203125
+    }
+   },
+   "worst_attack": "fresh adversary",
+   "worst_cvar": 14.380049753016287,
+   "worst_se": 0.02607917105681219,
+   "rise": 0.2659934146291043,
+   "rise_se": 0.004095575807637984,
+   "rel_rise": 0.018845993543731274,
+   "train_minutes": 4.7,
+   "vs_adv_under_fresh": 0.009616555209017719,
+   "vs_adv_under_fresh_se": 0.00237266140531585
+  }
+ ],
+ "no_hedge": {
+  "never early (tau = T)": 30.40186466081306,
+  "LSM rule": 25.453527195603996,
+  "P&L threshold (validation-fitted)": 30.597549747272797
+ }
+}

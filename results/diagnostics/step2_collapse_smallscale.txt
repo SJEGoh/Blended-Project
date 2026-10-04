@@ -1,0 +1,57 @@
+=== spec ===
+spec it=0 temp=1.000 relaxed=1.0084 test_hard=0.7849 early=1.000 maxf=5.53e-01 medf=5.32e-01 t=3s
+spec it=60 temp=0.794 relaxed=4.5444 test_hard=4.8669 early=0.000 maxf=5.40e-03 medf=1.63e-03 t=30s
+spec it=120 temp=0.630 relaxed=4.8428 test_hard=4.8669 early=0.000 maxf=5.68e-05 medf=3.90e-06 t=57s
+spec it=180 temp=0.501 relaxed=4.8750 test_hard=4.8669 early=0.000 maxf=4.13e-06 medf=1.39e-07 t=83s
+spec it=240 temp=0.397 relaxed=5.0968 test_hard=4.8669 early=0.000 maxf=1.65e-07 medf=2.30e-09 t=109s
+spec it=300 temp=0.316 relaxed=4.9545 test_hard=4.8669 early=0.000 maxf=2.87e-09 medf=1.32e-11 t=133s
+spec it=360 temp=0.251 relaxed=5.0149 test_hard=4.8669 early=0.000 maxf=1.74e-11 medf=1.99e-14 t=158s
+spec it=420 temp=0.199 relaxed=5.0528 test_hard=4.8669 early=0.000 maxf=2.82e-14 medf=5.54e-18 t=186s
+spec it=480 temp=0.158 relaxed=4.8230 test_hard=4.8669 early=0.000 maxf=8.62e-18 medf=1.85e-22 t=236s
+spec it=540 temp=0.125 relaxed=4.8648 test_hard=4.8669 early=0.000 maxf=3.23e-22 medf=4.26e-28 t=264s
+spec it=599 temp=0.100 relaxed=4.9611 test_hard=4.8669 early=0.000 maxf=1.09e-27 medf=4.58e-35 t=322s
+=== bias ===
+bias it=0 temp=1.000 relaxed=3.7700 test_hard=4.8669 early=0.000 maxf=2.15e-02 medf=1.99e-02 t=3s
+bias it=60 temp=0.794 relaxed=4.7413 test_hard=4.8669 early=0.000 maxf=5.01e-04 medf=3.35e-04 t=30s
+bias it=120 temp=0.630 relaxed=4.8429 test_hard=4.8669 early=0.000 maxf=2.19e-05 medf=9.36e-06 t=55s
+bias it=180 temp=0.501 relaxed=4.8750 test_hard=4.8669 early=0.000 maxf=1.20e-06 medf=3.99e-07 t=80s
+bias it=240 temp=0.397 relaxed=5.0968 test_hard=4.8669 early=0.000 maxf=3.48e-08 medf=8.63e-09 t=106s
+bias it=300 temp=0.316 relaxed=4.9545 test_hard=4.8669 early=0.000 maxf=4.04e-10 medf=6.98e-11 t=131s
+bias it=360 temp=0.251 relaxed=5.0149 test_hard=4.8669 early=0.000 maxf=1.48e-12 medf=1.62e-13 t=155s
+bias it=420 temp=0.199 relaxed=5.0528 test_hard=4.8669 early=0.000 maxf=1.26e-15 medf=7.79e-17 t=180s
+bias it=480 temp=0.158 relaxed=4.8230 test_hard=4.8669 early=0.000 maxf=1.72e-19 medf=5.16e-21 t=229s
+bias it=540 temp=0.125 relaxed=4.8648 test_hard=4.8669 early=0.000 maxf=2.33e-24 medf=2.82e-26 t=261s
+bias it=599 temp=0.100 relaxed=4.9611 test_hard=4.8669 early=0.000 maxf=2.25e-30 medf=8.82e-33 t=286s
+=== lr1e4 ===
+spec lr=0.0001 it=0 temp=1.000 relaxed=1.0084 test_hard=0.7849 early=1.000 t=8s
+spec lr=0.0001 it=100 temp=0.681 relaxed=1.0661 test_hard=4.8669 early=0.000 t=70s
+spec lr=0.0001 it=200 temp=0.464 relaxed=1.5478 test_hard=4.8669 early=0.000 t=113s
+spec lr=0.0001 it=300 temp=0.316 relaxed=4.3241 test_hard=4.8669 early=0.000 t=155s
+spec lr=0.0001 it=400 temp=0.215 relaxed=4.9485 test_hard=4.8669 early=0.000 t=199s
+spec lr=0.0001 it=500 temp=0.146 relaxed=4.9050 test_hard=4.8669 early=0.000 t=243s
+spec lr=0.0001 it=599 temp=0.100 relaxed=4.9611 test_hard=4.8669 early=0.000 t=287s
+=== lr3e4 ===
+spec lr=0.0003 it=0 temp=1.000 relaxed=1.0084 test_hard=0.7849 early=1.000 t=10s
+spec lr=0.0003 it=100 temp=0.681 relaxed=1.9176 test_hard=4.8669 early=0.000 t=72s
+spec lr=0.0003 it=200 temp=0.464 relaxed=5.0407 test_hard=4.8669 early=0.000 t=116s
+spec lr=0.0003 it=300 temp=0.316 relaxed=4.9542 test_hard=4.8669 early=0.000 t=159s
+spec lr=0.0003 it=400 temp=0.215 relaxed=4.9803 test_hard=4.8669 early=0.000 t=201s
+spec lr=0.0003 it=500 temp=0.146 relaxed=4.9059 test_hard=4.8669 early=0.000 t=244s
+spec lr=0.0003 it=599 temp=0.100 relaxed=4.9611 test_hard=4.8669 early=0.000 t=296s
+=== perdate ===
+perdate lr=0.001 it=0 temp=1.000 relaxed=1.0084 test_hard=0.7849 early=1.000 t=4s
+perdate lr=0.001 it=100 temp=0.681 relaxed=4.7698 test_hard=4.8669 early=0.000 t=46s
+perdate lr=0.001 it=200 temp=0.464 relaxed=5.0547 test_hard=4.8669 early=0.000 t=87s
+perdate lr=0.001 it=300 temp=0.316 relaxed=4.9545 test_hard=4.8669 early=0.000 t=130s
+perdate lr=0.001 it=400 temp=0.215 relaxed=4.9803 test_hard=4.8669 early=0.000 t=174s
+perdate lr=0.001 it=500 temp=0.146 relaxed=4.9059 test_hard=4.8669 early=0.000 t=216s
+perdate lr=0.001 it=599 temp=0.100 relaxed=4.9611 test_hard=4.8669 early=0.000 t=256s
+=== warm ===
+warm start done (4.934134483337402, 0.4371185302734375) 130s
+warm lr=0.001 it=0 temp=1.000 relaxed=4.8678 test_hard=4.9483 early=0.426 t=133s
+warm lr=0.001 it=100 temp=0.681 relaxed=5.0560 test_hard=4.9974 early=0.321 t=180s
+warm lr=0.001 it=200 temp=0.464 relaxed=4.9707 test_hard=4.9958 early=0.327 t=225s
+warm lr=0.001 it=300 temp=0.316 relaxed=5.0550 test_hard=5.0023 early=0.302 t=275s
+warm lr=0.001 it=400 temp=0.215 relaxed=4.8972 test_hard=4.9971 early=0.339 t=346s
+warm lr=0.001 it=500 temp=0.146 relaxed=5.0440 test_hard=4.9962 early=0.332 t=431s
+warm lr=0.001 it=599 temp=0.100 relaxed=5.0630 test_hard=4.9961 early=0.332 t=498s

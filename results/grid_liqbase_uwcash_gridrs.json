@@ -1,0 +1,210 @@
+{
+ "suffix": "_liqbase_uwcash_gridrs",
+ "tag": "gridrs",
+ "outer_iters": 600,
+ "liquidity": {
+  "enabled": true,
+  "name": "base",
+  "cost_scale": 1.0,
+  "s0": 0.0005,
+  "Y": 1.0,
+  "psi": 0.05,
+  "kappa": 20.0,
+  "eta": 1.0,
+  "beta_down": 15.0,
+  "h_mult": 2.0,
+  "gamma_v": 0.3,
+  "zeta": 0.2,
+  "ewma_w": 0.3,
+  "zcap": 10.0,
+  "ell_max": 10.0,
+  "sig_ratio_max": 4.0,
+  "sigma_ref": 0.2,
+  "seed_offset": 7777
+ },
+ "unwind": "cash",
+ "c": 0.0,
+ "restart_every": 150,
+ "restart_steps": 300,
+ "cells": [
+  {
+   "lam": 0.0,
+   "alpha": 0.99,
+   "lsm_price": 4.993577280952467,
+   "available": true,
+   "restarts": [
+    {
+     "it": 149,
+     "current": 8.49952220916748,
+     "fresh": 8.49952220916748,
+     "fresh_frac_early": 0.000396728515625,
+     "swapped": false
+    },
+    {
+     "it": 299,
+     "current": 8.389669418334961,
+     "fresh": 8.389669418334961,
+     "fresh_frac_early": 0.00054931640625,
+     "swapped": false
+    },
+    {
+     "it": 449,
+     "current": 8.38164234161377,
+     "fresh": 8.38164234161377,
+     "fresh_frac_early": 0.0009765625,
+     "swapped": false
+    }
+   ],
+   "p_star": 8.34874445459117,
+   "p_star_se": 0.008266790116148824,
+   "fresh": 8.34874445459117,
+   "gap": 0.0,
+   "gap_se": 0.0,
+   "rel_gap": 0.0,
+   "pass_gap_2pct": true,
+   "simple": {
+    "never early": 8.34874445459117,
+    "LSM rule": 8.149979792325029,
+    "P&L threshold": 8.37356712579909,
+    "illiquidity threshold": 8.307866600976475,
+    "post-decline": 8.348636980733282
+   },
+   "strongest_simple": "P&L threshold",
+   "strongest_simple_rel": 0.0029732220626622775,
+   "mean_ex_time": 0.5,
+   "frac_early": 0.0,
+   "hedge_mean": -0.4637358784675598,
+   "hedge_std": 0.2587140202522278,
+   "batch_log2": 13,
+   "train_minutes": 96.3
+  },
+  {
+   "lam": 0.5,
+   "alpha": 0.99,
+   "lsm_price": 5.786019723500609,
+   "available": true,
+   "restarts": [
+    {
+     "it": 149,
+     "current": 19.945024490356445,
+     "fresh": 20.28195571899414,
+     "fresh_frac_early": 0.050201416015625,
+     "swapped": true
+    },
+    {
+     "it": 299,
+     "current": 19.62165069580078,
+     "fresh": 19.530086517333984,
+     "fresh_frac_early": 0.0408935546875,
+     "swapped": false
+    },
+    {
+     "it": 449,
+     "current": 19.827972412109375,
+     "fresh": 19.759492874145508,
+     "fresh_frac_early": 0.064117431640625,
+     "swapped": false
+    }
+   ],
+   "p_star": 19.56147639975122,
+   "p_star_se": 0.07506858656564554,
+   "fresh": 19.55855552882843,
+   "gap": -0.0029208709227930285,
+   "gap_se": 0.006406421403683891,
+   "rel_gap": -0.00014931750871473973,
+   "pass_gap_2pct": true,
+   "simple": {
+    "never early": 19.193363463942283,
+    "LSM rule": 19.039696360980162,
+    "P&L threshold": 19.219854931718608,
+    "illiquidity threshold": 18.980680574086858,
+    "post-decline": 19.133480560861408
+   },
+   "strongest_simple": "P&L threshold",
+   "strongest_simple_rel": -0.01746399203471974,
+   "mean_ex_time": 0.4967057037353516,
+   "frac_early": 0.01935577392578125,
+   "hedge_mean": -0.5535313487052917,
+   "hedge_std": 0.14470174908638,
+   "batch_log2": 13,
+   "train_minutes": 98.1
+  },
+  {
+   "lam": 1.0,
+   "alpha": 0.99,
+   "lsm_price": 6.546019792196779,
+   "available": true,
+   "restarts": [
+    {
+     "it": 149,
+     "current": 20.867286682128906,
+     "fresh": 22.975162506103516,
+     "fresh_frac_early": 0.049652099609375,
+     "swapped": true
+    },
+    {
+     "it": 299,
+     "current": 22.15493392944336,
+     "fresh": 22.005146026611328,
+     "fresh_frac_early": 0.053009033203125,
+     "swapped": false
+    },
+    {
+     "it": 449,
+     "current": 22.170860290527344,
+     "fresh": 21.992849349975586,
+     "fresh_frac_early": 0.08074951171875,
+     "swapped": false
+    }
+   ],
+   "p_star": 21.879082464426187,
+   "p_star_se": 0.06962096770148232,
+   "fresh": 21.856006700150573,
+   "gap": -0.023075764275613864,
+   "gap_se": 0.009638769850000239,
+   "rel_gap": -0.001054695246618929,
+   "pass_gap_2pct": true,
+   "simple": {
+    "never early": 21.412344294590955,
+    "LSM rule": 21.113795968615126,
+    "P&L threshold": 21.434388061046235,
+    "illiquidity threshold": 20.828885956450694,
+    "post-decline": 21.104464021736568
+   },
+   "strongest_simple": "P&L threshold",
+   "strongest_simple_rel": -0.020325093801487924,
+   "mean_ex_time": 0.4965732955932617,
+   "frac_early": 0.020721435546875,
+   "hedge_mean": -0.5380748510360718,
+   "hedge_std": 0.1469358503818512,
+   "batch_log2": 13,
+   "train_minutes": 94.0
+  }
+ ],
+ "monotonicity": {
+  "alpha": [],
+  "lam": [
+   {
+    "alpha": 0.99,
+    "from_lam": 0.0,
+    "to_lam": 0.5,
+    "diff": 11.212731945160051,
+    "ok": true
+   },
+   {
+    "alpha": 0.99,
+    "from_lam": 0.5,
+    "to_lam": 1.0,
+    "diff": 2.3176060646749654,
+    "ok": true
+   }
+  ]
+ },
+ "convergence_ref": {
+  "lam": 1.0,
+  "alpha": 0.9,
+  "outer_iters": 1500,
+  "p_star": 15.123368214569586,
+  "p_star_se": 0.027476014997391458
+ }
+}

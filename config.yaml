@@ -1,0 +1,98 @@
+# Adversarial deep hedging of a Bermudan/American put — single source of configuration.
+# Any field can be overridden from the command line with  --set section.key=value
+# (e.g. --set market.lam=0 train.alpha=0.9).
+
+tag: ""               # appended to run names, e.g. "reduced"
+seed: 1234            # master seed for training batches / network init
+device: auto          # auto | cpu | cuda | mps
+threads: 0            # torch CPU threads (0 = torch default)
+
+market:
+  S0: 100.0
+  K: 100.0
+  T: 0.5
+  N: 50               # exercise / rebalancing dates t_1..t_N (uniform grid)
+  r: 0.03
+  mu: null            # null -> mu = r (simulation measure is a pricing measure)
+  sigma: 0.20
+  lam: 1.0            # jump intensity; 0 -> Black-Scholes
+  m: -0.10            # mean log jump size
+  delta: 0.15         # std of log jump size
+
+costs:
+  c: 0.0              # proportional transaction cost (baseline: 0)
+  # Cost of closing the hedge when the option is exercised (at t_tau, incl. maturity):
+  #   none     : spec — not charged
+  #   cash     : cash-settled put, seller closes delta_{tau-1} shares: + c |delta_{tau-1}| S~_tau
+  #   physical : holder delivers 1 share if in the money: + c |delta_{tau-1} + 1{S_tau < K}| S~_tau
+  unwind: none
+
+liquidity:            # volume / liquidity-risk extension (see LIQUIDITY.md); off -> MVP unchanged
+  enabled: false
+  name: base          # label used in run names
+  cost_scale: 1.0     # multiplies s0 and Y
+  s0: 0.0005          # normal half-spread (fraction of price)
+  Y: 1.0              # square-root impact prefactor
+  psi: 0.05           # position size / normal daily volume
+  kappa: 20.0         # mean reversion of log-illiquidity (1/yr)
+  eta: 1.0            # vol of log-illiquidity
+  beta_down: 15.0     # illiquidity jump per unit log-decline beyond h_mult * sigma * sqrt(dt)
+  h_mult: 2.0
+  gamma_v: 0.3        # log-volume sensitivity to |standardised return|
+  zeta: 0.2           # log-volume noise
+  ewma_w: 0.3         # EWMA weight of the volatility estimate
+  zcap: 10.0
+  ell_max: 10.0       # cap on illiquidity
+  sig_ratio_max: 4.0  # cap on sig / sigma_ref in the cost function
+  sigma_ref: null     # null -> market.sigma
+  seed_offset: 7777
+
+model:
+  hidden: 64
+  depth: 2            # hidden layers
+
+train:
+  alpha: 0.9
+  outer_iters: 3000
+  k_adv: 5            # stopper (ascent) steps per hedger (descent) step
+  batch_log2: 14
+  lr_hedger: 1.0e-3
+  lr_stopper: 1.0e-3
+  temp_start: 1.0
+  temp_end: 0.1       # geometric anneal temp_start -> temp_end over training
+  adversary_pool: true
+  pool_every: 200
+  log_every: 50
+  # Stopper initialisation. 'heuristic' = supervised warm start (warm_steps Adam steps of BCE)
+  # towards "exercise iff intrinsic > Merton European value", then train as spec'd. Adopted after
+  # step 2 because 'random' (the spec as written) collapses to never-exercise (results/RESULTS.md).
+  # Applies to the GDA adversary and to the fresh stopper of the exploitability check.
+  stopper_init: heuristic
+  warm_steps: 300
+  hedger_pnl_input: false            # ablation: also feed running P&L Z~_n - G~_n + C_n to the hedger
+  hedger_grad_through_stopper: true  # hedger step differentiates through the stopper's inputs
+
+stopper_only:         # build-order step 2: zero hedge, stopper trained alone
+  steps: 3000
+
+exploit:
+  steps: 2000         # fresh-stopper attack length
+
+eval:
+  test_log2: 18       # 2^18 held-out test paths
+  test_seed: 20261002 # same seed for every lam -> common random numbers across lam
+
+lsm:
+  degree: 3
+  n_reg_log2: 18
+  n_price_log2: 18
+  seed_reg: 101
+  seed_price: 202
+
+crr:
+  steps: 5000         # must be a multiple of market.N for the Bermudan-on-grid reference
+
+paths:
+  data_dir: data
+  results_dir: results
+  ckpt_dir: checkpoints

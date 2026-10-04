@@ -1,0 +1,21 @@
+/home/claude/adv_american/train.py:100: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  log.log(dict(step=it, temp=temp, train_cvar=float(obj), **st, sec=round(time.time() - t_start, 1)))
+step=0  temp=1.0000  train_cvar=1.0047  hard_cvar=0.7712  mean_ex_time=0.0100  frac_early=1.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=1.0000
+step=50  temp=0.9623  train_cvar=2.1213  hard_cvar=4.8140  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=47.3000
+step=100  temp=0.9261  train_cvar=4.8200  hard_cvar=4.8466  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=104.3000
+step=150  temp=0.8912  train_cvar=4.9105  hard_cvar=4.9191  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=159.2000
+step=200  temp=0.8577  train_cvar=4.9562  hard_cvar=4.9607  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=205.8000
+step=250  temp=0.8254  train_cvar=4.9506  hard_cvar=4.9531  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=252.4000
+step=300  temp=0.7943  train_cvar=4.7920  hard_cvar=4.7934  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=300.5000
+step=350  temp=0.7644  train_cvar=4.7857  hard_cvar=4.7866  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=347.5000
+step=400  temp=0.7356  train_cvar=4.7407  hard_cvar=4.7412  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=394.1000
+step=450  temp=0.7079  train_cvar=4.8917  hard_cvar=4.8920  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=440.9000
+step=500  temp=0.6812  train_cvar=4.8910  hard_cvar=4.8912  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=488.5000
+step=550  temp=0.6555  train_cvar=4.8464  hard_cvar=4.8465  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=537.2000
+step=600  temp=0.6309  train_cvar=4.8853  hard_cvar=4.8854  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=585.9000
+step=650  temp=0.6071  train_cvar=4.8874  hard_cvar=4.8875  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=634.5000
+step=700  temp=0.5842  train_cvar=4.8207  hard_cvar=4.8207  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=683.0000
+step=750  temp=0.5622  train_cvar=4.9013  hard_cvar=4.9013  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=732.9000
+step=800  temp=0.5411  train_cvar=4.9062  hard_cvar=4.9062  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=782.7000
+step=850  temp=0.5207  train_cvar=4.9490  hard_cvar=4.9491  mean_ex_time=0.5000  frac_early=0.0000  hedge_mean=0.0000  hedge_std=0.0000  sec=831.5000
