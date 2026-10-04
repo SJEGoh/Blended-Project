@@ -34,7 +34,7 @@ stopper (maximiser). Spec: `adversarial_american_hedging_mvp.md`.
     run_all.sh       pipeline for the stages implemented so far
     run_grid.sh      step-4 grid (grid_jobs.txt, grid_job.sh: one cell = GDA + fresh-adversary attack)
     grid_fix_job.sh  re-run of a cell with adversary restarts (train.adv_restart_every, off by default)
-    frontend/        static dashboard: adversarial vs LSM-trained hedge under attack (see below)
+    frontend/        dashboard + interactive path demo: adversarial vs LSM-trained hedge under attack (see below)
 
 ## Quick start
 
@@ -63,6 +63,15 @@ for each headline setting (frictionless, c = 0.5%, c = 0.5% + unwind, liquidity 
 
     python frontend/build_data.py      # re-run after evaluate.py --mode headline
     open frontend/index.html           # or: python -m http.server -d frontend
+
+`frontend/demo.html` is the interactive version: it simulates a path in the browser, runs the trained
+adversarial and LSM-trained hedgers and the fresh adversary trained against each (or the LSM exercise rule),
+animates prices, hedge positions, the seller's running loss and each adversary's exercise probability, and can
+simulate thousands of paths to show the CVaR_0.9 tail. The networks are exported from `checkpoints/` without torch:
+
+    python frontend/export_models.py   # checkpoints/ -> frontend/models.js
+    python frontend/verify_demo.py     # numpy re-implementation vs published CVaRs (all within ~1 SE)
+    python frontend/verify_demo.py --log2 12 --fixture /tmp/fx.json && node frontend/test_engine.js /tmp/fx.json 20000
 
 ## Conventions and implementation choices
 

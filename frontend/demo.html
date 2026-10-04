@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hedge Under Attack</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --surface: #ffffff; --text: #1d1d1b; --muted: #6b6b66; --border: #e3e2dd; --grid: #ecebe6;
+    --gda: #1f6fb2; --lsm: #d9822b; --rule: #7a7a74; --good: #2f855a; --bad: #c0392b; --chip: #efeee9;
+    --exregion: rgba(192, 57, 43, 0.07); --liq: 192, 57, 43;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413; --surface: #1d1d1b; --text: #ecebe6; --muted: #9c9b95; --border: #33322f; --grid: #2a2927;
+      --gda: #5aa6e6; --lsm: #f0a050; --rule: #a3a29b; --good: #5cc28a; --bad: #ef6f5f; --chip: #2a2927;
+      --exregion: rgba(239, 111, 95, 0.09); --liq: 239, 111, 95;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413; --surface: #1d1d1b; --text: #ecebe6; --muted: #9c9b95; --border: #33322f; --grid: #2a2927;
+    --gda: #5aa6e6; --lsm: #f0a050; --rule: #a3a29b; --good: #5cc28a; --bad: #ef6f5f; --chip: #2a2927;
+    --exregion: rgba(239, 111, 95, 0.09); --liq: 239, 111, 95;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 28px 16px 64px; }
+  h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  h2 { font-size: 17px; margin: 0 0 4px; }
+  h3 { font-size: 14px; margin: 0 0 2px; }
+  a { color: var(--gda); }
+  .sub { color: var(--muted); margin: 0 0 18px; max-width: 800px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+  select, input[type=number], button {
+    font: inherit; font-size: 14px; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
+  input[type=number] { width: 110px; }
+  button { cursor: pointer; }
+  button.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  button:disabled { opacity: .5; cursor: default; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; padding: 6px 12px; }
+  .seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+  .player { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; }
+  .player input[type=range] { flex: 1; accent-color: var(--text); }
+  .player .date { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; min-width: 120px; text-align: right; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 12px; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  .charts .card { margin-bottom: 12px; padding-bottom: 10px; }
+  .cap { color: var(--muted); font-size: 13px; margin: 0 0 6px; }
+  .chart { position: relative; width: 100%; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart text { fill: var(--muted); font-size: 11px; }
+  .tip { position: absolute; pointer-events: none; background: var(--text); color: var(--bg); font-size: 12px;
+         padding: 6px 8px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -115%); opacity: 0; z-index: 2; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; background: var(--c); margin-right: 6px; vertical-align: 3px; }
+  .legend i.dash { background: repeating-linear-gradient(90deg, var(--c) 0 4px, transparent 4px 7px); }
+  .legend i.box { height: 10px; width: 12px; vertical-align: -1px; border-radius: 2px; }
+  .legend i.dia { width: 9px; height: 9px; transform: rotate(45deg); vertical-align: 0; border-radius: 1px; }
+  .side { display: flex; flex-direction: column; gap: 12px; }
+  .score { border-left: 4px solid var(--c); }
+  .score .status { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .score .status b { color: var(--text); }
+  .score .big { font-size: 30px; font-weight: 650; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .score .biglab { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .score table { width: 100%; font-size: 13px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .score td { padding: 3px 0; } .score td:last-child { text-align: right; }
+  .score tr.total td { border-top: 1px solid var(--border); font-weight: 600; padding-top: 6px; }
+  .verdict { font-size: 14px; }
+  .verdict .win { font-weight: 650; }
+  .badge { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 999px; background: var(--chip); color: var(--muted); margin-left: 6px; vertical-align: 2px; }
+  .badge.live { background: rgba(47,133,90,.14); color: var(--good); }
+  .batch { margin-top: 12px; }
+  .batch-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; justify-content: space-between; margin-bottom: 8px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 10px 0 4px; }
+  .stat { background: var(--bg); border-radius: 10px; padding: 10px 12px; }
+  .stat .k { font-size: 12px; color: var(--muted); }
+  .stat .v { font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .stat .n { font-size: 12px; color: var(--muted); }
+  progress { width: 160px; height: 8px; accent-color: var(--text); }
+  footer { color: var(--muted); font-size: 12px; margin-top: 20px; }
+  code { background: var(--chip); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Hedge under attack: adversarial vs LSM-trained</h1>
+  <p class="sub">
+    You sold a Bermudan put (strike 100, six months, 50 exercise dates; the stock can jump). Two trained hedgers
+    trade the stock to offset it: the <b style="color:var(--gda)">adversarial (GDA)</b> hedge, trained against a holder
+    who exercises at the worst moment for you, and the <b style="color:var(--lsm)">LSM-trained</b> hedge, trained
+    assuming the holder follows the textbook Longstaff&ndash;Schwartz rule. Generate a path and watch what a hostile
+    holder does to each. Everything runs live in your browser with the trained networks from <code>checkpoints/</code>.
+    <a href="index.html">Summary dashboard &rarr;</a>
+  </p>
+
+  <div class="card controls">
+    <label class="field">Market setting
+      <select id="scenario"></select>
+    </label>
+    <div class="field">Holder exercises by
+      <div class="seg" id="holder">
+        <button data-v="adv" aria-pressed="true">Adversary</button>
+        <button data-v="lsm" aria-pressed="false">LSM rule</button>
+      </div>
+    </div>
+    <label class="field">Path seed
+      <input type="number" id="seed" min="0" step="1">
+    </label>
+    <button class="primary" id="btnRandom">New random path</button>
+    <button id="btnTail" title="Pick a path from the worst 10% of outcomes for the LSM-trained hedge: the tail that CVaR measures">Tail path</button>
+  </div>
+
+  <div class="player">
+    <button id="btnPlay" aria-label="Play">&#9654; Play</button>
+    <input type="range" id="scrub" min="0" max="50" value="0" aria-label="Date">
+    <div class="date" id="dateLabel"></div>
+  </div>
+
+  <div class="layout">
+    <div class="charts">
+      <div class="card">
+        <h3>Stock price</h3>
+        <p class="cap" id="capPrice">Shaded: where the LSM rule says exercise. Diamonds: when each holder exercised.</p>
+        <div class="chart" id="chPrice"></div>
+        <div class="legend" id="lgPrice"></div>
+      </div>
+      <div class="card">
+        <h3>Hedge position</h3>
+        <p class="cap">Shares held per option sold (negative = short). Set at each date and held to the next.</p>
+        <div class="chart" id="chDelta"></div>
+      </div>
+      <div class="card">
+        <h3>Seller's loss if the option is exercised now</h3>
+        <p class="cap">Payoff owed &minus; hedge gains + trading costs (+ cost of unwinding the hedge). The holder's choice of date picks one point on each line; lower is better for you.</p>
+        <div class="chart" id="chLoss"></div>
+        <div class="legend" id="lgLoss"></div>
+      </div>
+      <div class="card" id="cardUrge">
+        <h3>Adversary's urge to exercise</h3>
+        <p class="cap">Each adversary's exercise probability; it exercises the first time this crosses 50%. Each one was trained against its own hedger and sees that hedger's running loss.</p>
+        <div class="chart" id="chUrge"></div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="card score" id="scoreGda" style="--c:var(--gda)"></div>
+      <div class="card score" id="scoreLsm" style="--c:var(--lsm)"></div>
+      <div class="card verdict" id="verdict"></div>
+    </div>
+  </div>
+
+  <div class="card batch">
+    <div class="batch-head">
+      <div>
+        <h2>One path is luck. Risk lives in the tail.</h2>
+        <p class="cap" style="margin:0">Both hedgers are scored by CVaR<sub>0.9</sub>: the average loss over the worst 10% of paths. Simulate many paths to see it emerge.</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <progress id="prog" max="1" value="0" hidden></progress>
+        <select id="batchN"><option>1000</option><option selected>3000</option><option>10000</option></select>
+        <button class="primary" id="btnBatch">Simulate paths</button>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="chart" id="chHist"></div>
+    <div class="legend" id="lgHist"></div>
+  </div>
+
+  <footer>
+    Networks: <code>frontend/models.js</code>, exported from <code>checkpoints/</code> by <code>frontend/export_models.py</code>.
+    Engine: <code>frontend/demo_engine.js</code> (checked against the numpy reference and the published test-set CVaRs by
+    <code>frontend/test_engine.js</code>). Losses are per option, in discounted units. &lambda; = 1 jumps/year, mean jump &minus;10%.
+  </footer>
+</main>
+
+<script src="models.js"></script>
+<script src="demo_engine.js"></script>
+<script>
+(function () {
+  const M = window.DEMO_MODELS, E = window.DemoEngine;
+  if (!M || !E) { document.querySelector("main").innerHTML = "<p>Missing models.js: run <code>python frontend/export_models.py</code>.</p>"; return; }
+  const NS = "http://www.w3.org/2000/svg";
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const fmt = (x, d = 2) => (x == null || isNaN(x)) ? "—" : x.toFixed(d);
+  const HED = [
+    { key: "gda", name: "Adversarial (GDA) hedge", short: "Adversarial", hedger: "hedger_gda", adv: "adv_vs_gda", color: "--gda" },
+    { key: "lsm", name: "LSM-trained hedge", short: "LSM-trained", hedger: "hedger_lsm", adv: "adv_vs_lsm", color: "--lsm" },
+  ];
+
+  // ---------- state ----------
+  const st = { scen: M.scenarios[0].id, holder: "adv", seed: 1, step: 0, playing: false, path: null, ro: null, tauLsm: 0, batch: null };
+  try { const s = JSON.parse(localStorage.getItem("hedge-demo") || "{}"); if (s.scen) st.scen = s.scen; if (s.holder) st.holder = s.holder; } catch (e) {}
+  if (!M.scenarios.some(s => s.id === st.scen)) st.scen = M.scenarios[0].id;
+  const save = () => { try { localStorage.setItem("hedge-demo", JSON.stringify({ scen: st.scen, holder: st.holder })); } catch (e) {} };
+  const sc = () => M.scenarios.find(s => s.id === st.scen);
+  const N = () => sc().market.N;
+
+  // ---------- SVG helpers ----------
+  function el(tag, a = {}, parent) { const n = document.createElementNS(NS, tag); for (const k in a) n.setAttribute(k, a[k]); if (parent) parent.appendChild(n); return n; }
+  function box(id, h) {
+    const c = document.getElementById(id); c.innerHTML = "";
+    const W = Math.max(280, Math.floor(c.clientWidth));
+    const svg = el("svg", { viewBox: `0 0 ${W} ${h}` }, c);
+    const tip = document.createElement("div"); tip.className = "tip"; c.appendChild(tip);
+    svg.W = W; svg.H = h;
+    svg.tip = (e, html) => { if (!html) { tip.style.opacity = 0; return; } const r = c.getBoundingClientRect(); tip.innerHTML = html; tip.style.opacity = 1; tip.style.left = (e.clientX - r.left) + "px"; tip.style.top = (e.clientY - r.top) + "px"; };
+    return svg;
+  }
+  function ticks(lo, hi, n) {
+    const span = hi - lo || 1, mag = Math.pow(10, Math.floor(Math.log10(span / n)));
+    const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => span / s <= n) || mag * 10;
+    const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10)); return out;
+  }
+  function pathD(pts) { let d = "", pen = false; for (const [x, y] of pts) { if (y == null || isNaN(y)) { pen = false; continue; } d += (pen ? "L" : "M") + x.toFixed(1) + "," + y.toFixed(1); pen = true; } return d; }
+  function stepD(pts) { let d = ""; pts.forEach(([x0, x1, y], i) => { d += (i ? "L" : "M") + x0.toFixed(1) + "," + y.toFixed(1) + "L" + x1.toFixed(1) + "," + y.toFixed(1); }); return d; }
+  function diamond(svg, x, y, color, r = 6) { return el("path", { d: `M${x},${y - r}L${x + r},${y}L${x},${y + r}L${x - r},${y}Z`, fill: color, stroke: css("--surface"), "stroke-width": 1.5 }, svg); }
+
+  // common time axis: dates 0..N
+  function frame(svg, yLo, yHi, opts = {}) {
+    const M_ = { l: 46, r: 14, t: 8, b: opts.noX ? 8 : 24 };
+    const x = n => M_.l + n / N() * (svg.W - M_.l - M_.r);
+    const y = v => M_.t + (yHi - v) / (yHi - yLo) * (svg.H - M_.t - M_.b);
+    ticks(yLo, yHi, opts.yTicks || 4).forEach(t => {
+      el("line", { x1: M_.l, x2: svg.W - M_.r, y1: y(t), y2: y(t), stroke: css("--grid") }, svg);
+      el("text", { x: M_.l - 6, y: y(t) + 4, "text-anchor": "end" }, svg).textContent = opts.yFmt ? opts.yFmt(t) : t;
+    });
+    if (!opts.noX) {
+      const months = sc().market.T * 12;
+      for (let m = 0; m <= months; m++) {
+        const n = m / months * N();
+        const narrow = svg.W < 520;
+        el("text", { x: x(n), y: svg.H - 6, "text-anchor": m === months ? "end" : m === 0 ? "start" : "middle" }, svg).textContent = m === 0 ? (narrow ? "0" : "start") : m + (m === months && !narrow ? " mo (expiry)" : " mo");
+      }
+    }
+    // "now" marker
+    if (st.step < N()) {
+      el("rect", { x: x(st.step), y: M_.t, width: svg.W - M_.r - x(st.step), height: svg.H - M_.t - M_.b, fill: css("--bg"), opacity: 0.55 }, svg);
+    }
+    el("line", { x1: x(st.step), x2: x(st.step), y1: M_.t, y2: svg.H - M_.b, stroke: css("--muted"), "stroke-dasharray": "2 3", opacity: 0.6 }, svg);
+    return { x, y, M: M_ };
+  }
+
+  // ---------- simulation of the current path ----------
+  function compute() {
+    const s = sc();
+    st.path = E.simulatePath(s.market, s.liquidity, st.seed);
+    st.ro = {};
+    HED.forEach(h => { st.ro[h.key] = E.rollout(s, s.nets[h.hedger], s.nets[h.adv], st.path); });
+    st.tauLsm = E.lsmStop(M.lsm_rule, st.path.logS);
+    if (!st.boundary) st.boundary = Array.from({ length: s.market.N + 1 }, (_, n) => n > 0 && n < s.market.N ? E.lsmBoundary(M.lsm_rule, n, 50) : NaN);
+  }
+  const tau = h => st.holder === "lsm" ? st.tauLsm : st.ro[h.key].tauAdv;   // 0-based over dates 1..N
+  const exDate = h => tau(h) + 1;                                            // date index 1..N
+  const exercised = h => st.step >= exDate(h);
+
+  // ---------- charts ----------
+  function drawPrice() {
+    const s = sc(), K = s.market.K, S = st.path.logS.map(Math.exp);
+    const liq = st.path.extras;
+    const H = liq ? 250 : 230;
+    const svg = box("chPrice", H);
+    const lo = Math.min(...S, K) * 0.97, hi = Math.max(...S, K) * 1.02;
+    const f = frame(svg, lo, hi, { yTicks: 5 });
+    // LSM exercise region (below the boundary)
+    const xs = n => f.x(n);
+    for (let n = 1; n < N(); n++) {
+      const b = st.boundary[n]; if (isNaN(b)) continue;
+      const top = Math.min(b, hi), bot = lo;
+      if (top <= bot) continue;
+      el("rect", { x: xs(n - 0.5), y: f.y(top), width: xs(1) - xs(0) + 0.5, height: f.y(bot) - f.y(top), fill: css("--exregion") }, svg);
+    }
+    el("line", { x1: f.M.l, x2: svg.W - f.M.r, y1: f.y(K), y2: f.y(K), stroke: css("--muted"), "stroke-dasharray": "5 4" }, svg);
+    el("text", { x: svg.W - f.M.r, y: f.y(K) - 5, "text-anchor": "end" }, svg).textContent = "strike";
+    // illiquidity strip
+    if (liq) {
+      const yb = svg.H - f.M.b - 6;
+      for (let n = 0; n <= Math.min(st.step, N()); n++) {
+        const a = Math.min(1, Math.log(liq.ell[n]) / Math.log(s.liquidity.ell_max));
+        el("rect", { x: f.x(n) - (f.x(1) - f.x(0)) / 2, y: yb, width: f.x(1) - f.x(0) + 0.5, height: 6, fill: `rgba(${css("--liq")},${0.08 + 0.85 * Math.max(0, a)})` }, svg);
+      }
+    }
+    // future path (faint) and revealed path
+    const pts = S.map((v, n) => [f.x(n), f.y(v)]);
+    el("path", { d: pathD(pts.slice(st.step)), fill: "none", stroke: css("--muted"), "stroke-width": 1, opacity: 0.0 }, svg);
+    el("path", { d: pathD(pts.slice(0, st.step + 1)), fill: "none", stroke: css("--text"), "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+    // jumps
+    st.path.jumps.forEach((j, i) => {
+      if (j === 0 || i + 1 > st.step) return;
+      const n = i + 1, xx = f.x(n), yy = f.y(S[n]);
+      const t = el("path", { d: j < 0 ? `M${xx - 5},${yy + 8}L${xx + 5},${yy + 8}L${xx},${yy + 15}Z` : `M${xx - 5},${yy - 8}L${xx + 5},${yy - 8}L${xx},${yy - 15}Z`, fill: css("--bad") }, svg);
+      hoverTip(t, svg, `Jump at date ${n}: ${(100 * (Math.exp(j) - 1)).toFixed(1)}%`);
+    });
+    // exercise markers
+    const marks = [];
+    if (st.holder === "adv") HED.forEach(h => { if (exercised(h)) marks.push([exDate(h), css(h.color), `${h.short} hedge's adversary exercises`]); });
+    if (st.step >= st.tauLsm + 1) marks.push([st.tauLsm + 1, css("--rule"), "LSM rule exercises"]);
+    const seen = {};
+    marks.forEach(([n, c, lab]) => {
+      const off = (seen[n] = (seen[n] || 0) + 1) - 1;
+      const d = diamond(svg, f.x(n), f.y(S[n]) - off * 14, c, 6.5);
+      hoverTip(d, svg, `${lab} at date ${n}<br>S = ${S[n].toFixed(2)}`);
+    });
+    // hover readout
+    crosshair(svg, f, n => `date ${n} &middot; S = ${S[n].toFixed(2)}` + (liq ? `<br>illiquidity ℓ = ${liq.ell[n].toFixed(2)}` : ""));
+    const lg = [`<span><i style="--c:${css("--text")}"></i>stock</span>`, `<span><i class="box" style="--c:${css("--exregion")};background:${css("--exregion")};border:1px solid ${css("--border")}"></i>LSM exercise region</span>`,
+      `<span><i class="dia" style="--c:${css("--rule")}"></i>LSM rule exercises</span>`];
+    if (st.holder === "adv") HED.forEach(h => lg.push(`<span><i class="dia" style="--c:${css(h.color)}"></i>adversary vs ${h.short}</span>`));
+    lg.push(`<span><i class="box" style="--c:${css("--bad")}; width:9px; height:7px; clip-path:polygon(0 0,100% 0,50% 100%)"></i>jump</span>`);
+    if (liq) lg.push(`<span><i class="box" style="--c:rgba(${css("--liq")},.7)"></i>illiquidity (darker = thinner market)</span>`);
+    document.getElementById("lgPrice").innerHTML = lg.join("");
+  }
+
+  function drawDelta() {
+    const svg = box("chDelta", 150);
+    const all = HED.flatMap(h => st.ro[h.key].D);
+    const f = frame(svg, Math.min(-1, ...all) - 0.05, Math.max(0, ...all) + 0.05, { yTicks: 4, yFmt: t => t.toFixed(1) });
+    el("line", { x1: f.M.l, x2: svg.W - f.M.r, y1: f.y(0), y2: f.y(0), stroke: css("--border") }, svg);
+    HED.forEach(h => {
+      const D = st.ro[h.key].D, end = Math.min(st.step, exercised(h) ? exDate(h) : st.step);
+      const live = [], after = [];
+      for (let n = 0; n < Math.min(st.step, N()); n++) (n < end ? live : after).push([f.x(n), f.x(n + 1), f.y(D[n])]);
+      if (live.length) el("path", { d: stepD(live), fill: "none", stroke: css(h.color), "stroke-width": 2.25 }, svg);
+      if (after.length) el("path", { d: stepD(after), fill: "none", stroke: css(h.color), "stroke-width": 1.25, "stroke-dasharray": "3 3", opacity: 0.45 }, svg);
+    });
+    crosshair(svg, f, n => n >= N() ? `expiry` : `date ${n}<br>` + HED.map(h => `${h.short}: ${st.ro[h.key].D[n].toFixed(3)}`).join("<br>"));
+  }
+
+  function drawLoss() {
+    const svg = box("chLoss", 210);
+    const ro = st.ro, Zd = ro.gda.Zd;
+    const all = HED.flatMap(h => ro[h.key].L).concat(Zd);
+    const f = frame(svg, Math.min(0, ...all) - 0.5, Math.max(...all) + 1, { yTicks: 5 });
+    const upto = st.step;
+    // payoff (unhedged) as reference
+    const zp = Zd.map((v, i) => [f.x(i + 1), f.y(v)]).slice(0, upto);
+    el("path", { d: pathD(zp), fill: "none", stroke: css("--rule"), "stroke-width": 1.25, "stroke-dasharray": "4 3" }, svg);
+    HED.forEach(h => {
+      const L = ro[h.key].L, e = exercised(h) ? exDate(h) : Infinity;
+      const live = [], after = [];
+      L.forEach((v, i) => { const n = i + 1; if (n > upto) return; if (n <= e) live.push([f.x(n), f.y(v)]); if (n >= e) after.push([f.x(n), f.y(v)]); });
+      el("path", { d: pathD(live), fill: "none", stroke: css(h.color), "stroke-width": 2.25, "stroke-linejoin": "round" }, svg);
+      if (after.length > 1) el("path", { d: pathD(after), fill: "none", stroke: css(h.color), "stroke-width": 1.25, "stroke-dasharray": "3 3", opacity: 0.4 }, svg);
+      if (exercised(h)) {
+        const n = exDate(h), v = L[n - 1];
+        el("line", { x1: f.M.l, x2: f.x(n), y1: f.y(v), y2: f.y(v), stroke: css(h.color), "stroke-width": 1, opacity: 0.35 }, svg);
+        const d = diamond(svg, f.x(n), f.y(v), css(h.color), 7);
+        hoverTip(d, svg, `${h.name}: exercised at date ${n}<br>seller's loss <b>${v.toFixed(2)}</b>`);
+      }
+    });
+    crosshair(svg, f, n => n === 0 ? "start" : `date ${n}<br>` + HED.map(h => `${h.short}: ${ro[h.key].L[n - 1].toFixed(2)}`).join("<br>") + `<br>payoff (no hedge): ${Zd[n - 1].toFixed(2)}`);
+    document.getElementById("lgLoss").innerHTML = HED.map(h => `<span><i style="--c:${css(h.color)}"></i>${h.short} hedge</span>`).join("") +
+      `<span><i class="dash" style="--c:${css("--rule")}"></i>payoff owed (no hedge)</span><span><i class="dia" style="--c:${css("--muted")}"></i>exercise: loss locked in</span>`;
+  }
+
+  function drawUrge() {
+    const card = document.getElementById("cardUrge");
+    card.style.display = st.holder === "adv" ? "" : "none";
+    if (st.holder !== "adv") return;
+    const svg = box("chUrge", 140);
+    const f = frame(svg, 0, 1, { yTicks: 2, yFmt: t => Math.round(t * 100) + "%" });
+    el("line", { x1: f.M.l, x2: svg.W - f.M.r, y1: f.y(0.5), y2: f.y(0.5), stroke: css("--muted"), "stroke-dasharray": "5 4" }, svg);
+    el("text", { x: svg.W - f.M.r, y: f.y(0.5) - 4, "text-anchor": "end" }, svg).textContent = "exercise threshold";
+    HED.forEach(h => {
+      const lg = st.ro[h.key].logit, e = exDate(h);
+      const pts = lg.map((v, i) => [f.x(i + 1), f.y(1 / (1 + Math.exp(-v)))]).slice(0, Math.min(st.step, e));
+      el("path", { d: pathD(pts), fill: "none", stroke: css(h.color), "stroke-width": 2 }, svg);
+      if (exercised(h)) diamond(svg, f.x(e), f.y(Math.min(1, 1 / (1 + Math.exp(-lg[e - 1])))), css(h.color), 6);
+    });
+    crosshair(svg, f, n => n === 0 ? "start" : `date ${n}<br>` + HED.map(h => `${h.short}'s adversary: ${(100 / (1 + Math.exp(-st.ro[h.key].logit[n - 1]))).toFixed(0)}%`).join("<br>"));
+  }
+
+  function hoverTip(node, svg, html) { node.addEventListener("mousemove", e => svg.tip(e, html)); node.addEventListener("mouseleave", e => svg.tip(e, null)); }
+  function crosshair(svg, f, html) {
+    const g = el("line", { y1: f.M.t, y2: svg.H - f.M.b, stroke: css("--muted"), opacity: 0 }, svg);
+    const hit = el("rect", { x: f.M.l, y: f.M.t, width: svg.W - f.M.l - f.M.r, height: svg.H - f.M.t - f.M.b, fill: "transparent" }, svg);
+    hit.addEventListener("mousemove", e => {
+      const r = svg.getBoundingClientRect(), vx = (e.clientX - r.left) / r.width * svg.W;
+      const n = Math.max(0, Math.min(st.step, Math.round((vx - f.M.l) / (svg.W - f.M.l - f.M.r) * N())));
+      g.setAttribute("x1", f.x(n)); g.setAttribute("x2", f.x(n)); g.setAttribute("opacity", 0.5);
+      svg.tip(e, html(n));
+    });
+    hit.addEventListener("mouseleave", e => { g.setAttribute("opacity", 0); svg.tip(e, null); });
+    hit.parentNode.insertBefore(hit, hit.parentNode.firstChild.nextSibling);   // keep markers above for their own tooltips
+  }
+
+  // ---------- scoreboard ----------
+  function drawScores() {
+    HED.forEach(h => {
+      const ro = st.ro[h.key], done = exercised(h);
+      const n = done ? exDate(h) : Math.max(1, st.step), i = n - 1;
+      const row = (k, v, cls = "") => `<tr class="${cls}"><td>${k}</td><td>${v}</td></tr>`;
+      const s = sc(), costLab = s.liquidity ? "Trading costs (spread + impact)" : (s.costs.c ? "Transaction costs" : "Transaction costs");
+      const hasU = (s.costs.unwind === "cash");
+      document.getElementById(h.key === "gda" ? "scoreGda" : "scoreLsm").innerHTML = `
+        <h3>${h.name}${done ? "" : `<span class="badge live">live</span>`}</h3>
+        <div class="status">${done
+          ? `Exercised at <b>date ${n}</b> by ${st.holder === "adv" ? "its adversary" : "the LSM rule"}`
+          : st.step === 0 ? "Press play or drag the slider" : `Not exercised yet &middot; shown: if exercised at date ${n}`}</div>
+        <div class="big" style="color:${css(h.color)}">${st.step === 0 && !done ? "—" : fmt(ro.L[i])}</div>
+        <div class="biglab">seller's loss${done ? "" : " (so far)"}</div>
+        <table>
+          ${row("Payoff owed to holder", fmt(ro.Zd[i]))}
+          ${row("Hedge gains", (ro.G[i] >= 0 ? "−" : "+") + fmt(Math.abs(ro.G[i])))}
+          ${row(costLab, "+" + fmt(ro.C[i]))}
+          ${hasU ? row("Unwinding the hedge", "+" + fmt(ro.U[i])) : ""}
+          ${row("Seller's loss", fmt(ro.L[i]), "total")}
+        </table>`;
+    });
+    const v = document.getElementById("verdict");
+    const done = HED.every(exercised);
+    if (!done) {
+      v.innerHTML = `<h3>How to read this</h3><p class="cap" style="margin:6px 0 0">The adversary sees the stock, the illiquidity (when modelled) and <i>your</i> running loss, and exercises when the loss is high. The LSM rule only looks at the stock price. Play the path to the end to compare outcomes.</p>`;
+    } else {
+      const a = st.ro.gda.L[exDate(HED[0]) - 1], b = st.ro.lsm.L[exDate(HED[1]) - 1], d = b - a;
+      const who = Math.abs(d) < 0.005 ? null : d > 0 ? HED[0] : HED[1];
+      v.innerHTML = `<h3>On this path</h3><p style="margin:6px 0 0">${who
+        ? `<span class="win" style="color:${css(who.color)}">${who.name}</span> lost <b>${fmt(Math.abs(d))}</b> less.`
+        : `Both hedges lost the same.`}</p>
+        <p class="cap" style="margin:8px 0 0">A single path is noisy: either hedge can win. What matters is the tail, below.</p>`;
+    }
+  }
+
+  function drawPlayer() {
+    const n = st.step, months = (n / N() * sc().market.T * 12);
+    document.getElementById("scrub").max = N();
+    document.getElementById("scrub").value = n;
+    document.getElementById("dateLabel").textContent = `date ${n} / ${N()} · ${months.toFixed(1)} mo`;
+    document.getElementById("btnPlay").innerHTML = st.playing ? "&#10073;&#10073; Pause" : (n >= N() ? "&#8635; Replay" : "&#9654; Play");
+  }
+
+  function render() {
+    drawPlayer(); drawPrice(); drawDelta(); drawLoss(); drawUrge(); drawScores();
+  }
+
+  // ---------- playback ----------
+  let timer = null;
+  function play() {
+    if (st.step >= N()) st.step = 0;
+    st.playing = true; drawPlayer();
+    clearInterval(timer);
+    timer = setInterval(() => {
+      st.step++;
+      if (st.step >= N()) { st.step = N(); stop(); }
+      render();
+    }, 110);
+  }
+  function stop() { st.playing = false; clearInterval(timer); drawPlayer(); }
+
+  function newPath(seed, autoplay = true) {
+    stop();
+    st.seed = seed; document.getElementById("seed").value = seed;
+    compute(); st.step = 0; render();
+    if (autoplay) play();
+  }
+
+  // Tail path: among candidate seeds, one whose outcome for the LSM-trained hedge is in its worst 10%.
+  function tailSeed() {
+    const s = sc(), base = Math.floor(Math.random() * 1e6) * 1000, cand = [];
+    for (let k = 0; k < 300; k++) {
+      const seed = base + k, p = E.simulatePath(s.market, s.liquidity, seed);
+      const ro = E.rollout(s, s.nets.hedger_lsm, s.nets.adv_vs_lsm, p);
+      const t = st.holder === "lsm" ? E.lsmStop(M.lsm_rule, p.logS) : ro.tauAdv;
+      cand.push([ro.L[t], seed]);
+    }
+    cand.sort((a, b) => b[0] - a[0]);
+    return cand[Math.floor(Math.random() * 30)][1];
+  }
+
+  // ---------- batch ----------
+  let batchRun = 0;
+  function runBatch() {
+    const s = sc(), n = +document.getElementById("batchN").value, run = ++batchRun;
+    const X = { gda: [], lsm: [] }, base = 7_000_000 + Math.floor(Math.random() * 1e6) * 100;
+    const prog = document.getElementById("prog"); prog.hidden = false; prog.max = n; prog.value = 0;
+    document.getElementById("btnBatch").disabled = true;
+    let i = 0;
+    function chunk() {
+      if (run !== batchRun) return;
+      const t0 = performance.now();
+      while (i < n && performance.now() - t0 < 30) {
+        const p = E.simulatePath(s.market, s.liquidity, base + i);
+        const tl = st.holder === "lsm" ? E.lsmStop(M.lsm_rule, p.logS) : null;
+        HED.forEach(h => {
+          const ro = E.rollout(s, s.nets[h.hedger], s.nets[h.adv], p);
+          X[h.key].push(ro.L[tl == null ? ro.tauAdv : tl]);
+        });
+        i++;
+      }
+      prog.value = i;
+      st.batch = { X, n: i, total: n, scen: s.id, holder: st.holder };
+      drawBatch();
+      if (i < n) requestAnimationFrame(chunk);
+      else { prog.hidden = true; document.getElementById("btnBatch").disabled = false; }
+    }
+    chunk();
+  }
+
+  function drawBatch() {
+    const b = st.batch, statsEl = document.getElementById("stats");
+    if (!b || b.scen !== st.scen || b.holder !== st.holder) {
+      statsEl.innerHTML = `<div class="stat"><div class="k">No simulation yet</div><div class="n">Press <b>Simulate paths</b> to run both hedges over many fresh paths under the selected holder behaviour.</div></div>`;
+      box("chHist", 40); document.getElementById("lgHist").innerHTML = ""; return;
+    }
+    const c = {}; HED.forEach(h => c[h.key] = E.cvar(b.X[h.key], 0.9));
+    let wins = 0; for (let k = 0; k < b.n; k++) if (b.X.gda[k] < b.X.lsm[k] - 1e-9) wins++;
+    const d = c.lsm.cvar - c.gda.cvar;
+    statsEl.innerHTML = HED.map(h => `<div class="stat" style="box-shadow:inset 3px 0 0 ${css(h.color)}"><div class="k">${h.short} hedge &middot; CVaR<sub>0.9</sub></div><div class="v" style="color:${css(h.color)}">${fmt(c[h.key].cvar, 3)}</div><div class="n">mean loss ${fmt(b.X[h.key].reduce((a, v) => a + v, 0) / b.n, 3)}</div></div>`).join("") +
+      `<div class="stat"><div class="k">Tail risk, LSM-trained minus adversarial</div><div class="v" style="color:${d > 0 ? css("--good") : css("--bad")}">${d >= 0 ? "+" : "−"}${fmt(Math.abs(d), 3)}</div><div class="n">${d > 0 ? "adversarial hedge has the smaller tail" : "LSM-trained hedge has the smaller tail"}</div></div>` +
+      `<div class="stat"><div class="k">Paths simulated</div><div class="v">${b.n.toLocaleString()}</div><div class="n">adversarial hedge lost less on ${(100 * wins / b.n).toFixed(0)}% of them</div></div>`;
+    // histogram
+    const all = b.X.gda.concat(b.X.lsm).slice().sort((a, b) => a - b);
+    const lo = all[Math.floor(all.length * 0.002)], hi = all[Math.min(all.length - 1, Math.floor(all.length * 0.998))];
+    const nb = 48, w = (hi - lo) / nb || 1;
+    const hist = {}; HED.forEach(h => { hist[h.key] = new Array(nb).fill(0); b.X[h.key].forEach(v => { const k = Math.min(nb - 1, Math.max(0, Math.floor((v - lo) / w))); hist[h.key][k]++; }); });
+    const ymax = Math.max(...HED.flatMap(h => hist[h.key]));
+    const svg = box("chHist", 240);
+    const Mg = { l: 46, r: 14, t: 10, b: 28 };
+    const x = v => Mg.l + (v - lo) / (hi - lo) * (svg.W - Mg.l - Mg.r), y = v => svg.H - Mg.b - v / ymax * (svg.H - Mg.t - Mg.b);
+    ticks(lo, hi, 8).forEach(t => { el("text", { x: x(t), y: svg.H - 8, "text-anchor": "middle" }, svg).textContent = t; el("line", { x1: x(t), x2: x(t), y1: Mg.t, y2: svg.H - Mg.b, stroke: css("--grid") }, svg); });
+    ticks(0, ymax, 3).forEach(t => el("text", { x: Mg.l - 6, y: y(t) + 4, "text-anchor": "end" }, svg).textContent = t);
+    // tail region (worst 10% of the LSM-trained hedge)
+    const tailStart = Math.min(c.gda.var, c.lsm.var);
+    el("rect", { x: x(tailStart), y: Mg.t, width: svg.W - Mg.r - x(tailStart), height: svg.H - Mg.t - Mg.b, fill: css("--exregion") }, svg);
+    el("text", { x: svg.W - Mg.r - 4, y: Mg.t + 12, "text-anchor": "end" }, svg).textContent = "worst 10%";
+    HED.forEach(h => {
+      const pts = []; hist[h.key].forEach((v, k) => { pts.push([x(lo + k * w), y(v)], [x(lo + (k + 1) * w), y(v)]); });
+      el("path", { d: pathD([[x(lo), y(0)], ...pts, [x(hi), y(0)]]) + "Z", fill: css(h.color), opacity: 0.18 }, svg);
+      el("path", { d: pathD(pts), fill: "none", stroke: css(h.color), "stroke-width": 1.75 }, svg);
+      const cv = c[h.key].cvar;
+      el("line", { x1: x(cv), x2: x(cv), y1: Mg.t, y2: svg.H - Mg.b, stroke: css(h.color), "stroke-width": 2, "stroke-dasharray": "5 3" }, svg);
+    });
+    el("text", { x: svg.W - Mg.r, y: svg.H - 8 + 0, "text-anchor": "end", dy: 0 }, svg);
+    const hit = el("rect", { x: Mg.l, y: Mg.t, width: svg.W - Mg.l - Mg.r, height: svg.H - Mg.t - Mg.b, fill: "transparent" }, svg);
+    hit.addEventListener("mousemove", e => {
+      const r = svg.getBoundingClientRect(), vx = (e.clientX - r.left) / r.width * svg.W, k = Math.max(0, Math.min(nb - 1, Math.floor(((vx - Mg.l) / (svg.W - Mg.l - Mg.r)) * nb)));
+      svg.tip(e, `loss ${(lo + k * w).toFixed(2)} to ${(lo + (k + 1) * w).toFixed(2)}<br>` + HED.map(h => `${h.short}: ${hist[h.key][k]} paths`).join("<br>"));
+    });
+    hit.addEventListener("mouseleave", e => svg.tip(e, null));
+    document.getElementById("lgHist").innerHTML = HED.map(h => `<span><i class="box" style="--c:${css(h.color)};opacity:.6"></i>${h.short} hedge: seller's loss per path</span><span><i class="dash" style="--c:${css(h.color)}"></i>its CVaR<sub>0.9</sub></span>`).join("") + `<span>x-axis: seller's loss &middot; y-axis: number of paths</span>`;
+  }
+
+  // ---------- wiring ----------
+  const sel = document.getElementById("scenario");
+  M.scenarios.forEach(s => { const o = document.createElement("option"); o.value = s.id; o.textContent = s.label; sel.appendChild(o); });
+  sel.value = st.scen;
+  sel.onchange = () => { st.scen = sel.value; save(); newPath(st.seed, false); drawBatch(); };
+  document.querySelectorAll("#holder button").forEach(b => {
+    b.setAttribute("aria-pressed", b.dataset.v === st.holder);
+    b.onclick = () => {
+      st.holder = b.dataset.v; save();
+      document.querySelectorAll("#holder button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === st.holder));
+      render(); drawBatch();
+    };
+  });
+  document.getElementById("btnRandom").onclick = () => newPath(Math.floor(Math.random() * 1e9));
+  document.getElementById("btnTail").onclick = () => newPath(tailSeed());
+  document.getElementById("seed").onchange = e => newPath(Math.max(0, Math.floor(+e.target.value || 0)));
+  document.getElementById("btnPlay").onclick = () => st.playing ? stop() : play();
+  document.getElementById("scrub").oninput = e => { stop(); st.step = +e.target.value; render(); };
+  document.getElementById("btnBatch").onclick = runBatch;
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { render(); drawBatch(); });
+  let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { render(); drawBatch(); }, 150); });
+
+  const q = new URLSearchParams(location.search);
+  newPath(q.has("seed") ? +q.get("seed") : 1170, false);   // default: a tail path where the adversaries act early
+  st.step = q.has("step") ? Math.min(N(), +q.get("step")) : N();   // open on a finished path
+  render(); drawBatch();
+})();
+</script>
+</body>
+</html>
