@@ -36,14 +36,19 @@ if (nPaths) {
   };
   for (const sc of M.scenarios) {
     const H = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "results", pub[sc.id]), "utf8")).hedgers;
-    const X = { gda: [], "fixed-lsm": [] };
+    const X = { gda: [], "fixed-lsm": [] }, P = [], Z = [];
     for (let i = 0; i < nPaths; i++) {
       const p = E.simulatePath(sc.market, sc.liquidity, 1000 + i);
       for (const [src, hk, ak] of [["gda", "hedger_gda", "adv_vs_gda"], ["fixed-lsm", "hedger_lsm", "adv_vs_lsm"]]) {
         const ro = E.rollout(sc, sc.nets[hk], sc.nets[ak], p);
         X[src].push(ro.L[ro.tauAdv]);
+        if (src === "gda") P.push(ro.L[E.stopIndex(E.stopperLogits(sc, sc.nets.adv_gda_own, p, ro))]);
       }
+      Z.push(E.payoff(sc.market, p.logS, E.lsmStop(M.lsm_rule, p.logS) + 1));
     }
+    const ps = E.cvar(P, 0.9), lp = E.mean(Z);
+    console.log(`${sc.id.padEnd(15)} GDA price p*: engine ${ps.cvar.toFixed(3)} ± ${ps.se.toFixed(3)}  published ${sc.published.p_star.toFixed(3)} ± ${sc.published.p_star_se.toFixed(3)}`);
+    console.log(`${sc.id.padEnd(15)} LSM price   : engine ${lp.mean.toFixed(3)} ± ${lp.se.toFixed(3)}  published ${M.lsm_price.toFixed(3)} ± ${M.lsm_se.toFixed(3)}`);
     for (const src of ["gda", "fixed-lsm"]) {
       const v = E.cvar(X[src], 0.9).cvar, ref = H.find(h => h.source === src).evals["fresh adversary"].cvar;
       console.log(`${sc.id.padEnd(15)} ${src.padEnd(10)} vs fresh adversary: engine ${v.toFixed(3)}  published ${ref.toFixed(3)}`);

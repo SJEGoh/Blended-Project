@@ -67,7 +67,9 @@ for each headline setting (frictionless, c = 0.5%, c = 0.5% + unwind, liquidity 
 `frontend/demo.html` is the interactive version: it simulates a path in the browser, runs the trained
 adversarial and LSM-trained hedgers and the fresh adversary trained against each (or the LSM exercise rule),
 animates prices, hedge positions, the seller's running loss and each adversary's exercise probability, and can
-simulate thousands of paths to show the CVaR_0.9 tail. The networks are exported from `checkpoints/` without torch:
+simulate thousands of paths to show the CVaR_0.9 tail. It also shows the two prices: the classical LSM price
+(risk-neutral expected payoff under the LSM exercise rule) and the GDA price p* (CVaR_0.9 of the adversarial
+hedge's loss against its co-trained adversary), as published and as live estimates from the simulated paths. The networks are exported from `checkpoints/` without torch:
 
     python frontend/export_models.py   # checkpoints/ -> frontend/models.js
     python frontend/verify_demo.py     # numpy re-implementation vs published CVaRs (all within ~1 SE)

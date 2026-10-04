@@ -81,6 +81,13 @@
   .stat .k { font-size: 12px; color: var(--muted); }
   .stat .v { font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; }
   .stat .n { font-size: 12px; color: var(--muted); }
+  .prices { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .price .k { font-size: 12px; color: var(--muted); }
+  .price .v { font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .price .v small { font-size: 13px; font-weight: 400; color: var(--muted); }
+  .price .n { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .score .sold { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); font-size: 12px; color: var(--muted); }
+  .score .sold td:last-child { font-weight: 600; }
   progress { width: 160px; height: 8px; accent-color: var(--text); }
   footer { color: var(--muted); font-size: 12px; margin-top: 20px; }
   code { background: var(--chip); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
@@ -114,6 +121,8 @@
     <button class="primary" id="btnRandom">New random path</button>
     <button id="btnTail" title="Pick a path from the worst 10% of outcomes for the LSM-trained hedge: the tail that CVaR measures">Tail path</button>
   </div>
+
+  <div class="prices" id="prices"></div>
 
   <div class="player">
     <button id="btnPlay" aria-label="Play">&#9654; Play</button>
@@ -158,7 +167,7 @@
     <div class="batch-head">
       <div>
         <h2>One path is luck. Risk lives in the tail.</h2>
-        <p class="cap" style="margin:0">Both hedgers are scored by CVaR<sub>0.9</sub>: the average loss over the worst 10% of paths. Simulate many paths to see it emerge.</p>
+        <p class="cap" style="margin:0">Both hedgers are scored by CVaR<sub>0.9</sub>: the average loss over the worst 10% of paths. Simulate many paths to see it emerge, along with live estimates of both prices.</p>
       </div>
       <div style="display:flex;gap:10px;align-items:center">
         <progress id="prog" max="1" value="0" hidden></progress>
@@ -333,9 +342,14 @@
   function drawLoss() {
     const svg = box("chLoss", 210);
     const ro = st.ro, Zd = ro.gda.Zd;
-    const all = HED.flatMap(h => ro[h.key].L).concat(Zd);
+    const all = HED.flatMap(h => ro[h.key].L).concat(Zd, [pStar(), M.lsm_price]);
     const f = frame(svg, Math.min(0, ...all) - 0.5, Math.max(...all) + 1, { yTicks: 5 });
     const upto = st.step;
+    // the two prices the seller could have charged
+    [[M.lsm_price, "--rule", "LSM price"], [pStar(), "--gda", "GDA price"]].forEach(([v, c, lab]) => {
+      el("line", { x1: f.M.l, x2: svg.W - f.M.r, y1: f.y(v), y2: f.y(v), stroke: css(c), "stroke-width": 1, "stroke-dasharray": "1 3", opacity: 0.9 }, svg);
+      el("text", { x: svg.W - f.M.r - 4, y: f.y(v) - 4, "text-anchor": "end", style: `fill:${css(c)};font-size:11px;paint-order:stroke;stroke:${css("--surface")};stroke-width:3px` }, svg).textContent = `${lab} ${v.toFixed(2)}`;
+    });
     // payoff (unhedged) as reference
     const zp = Zd.map((v, i) => [f.x(i + 1), f.y(v)]).slice(0, upto);
     el("path", { d: pathD(zp), fill: "none", stroke: css("--rule"), "stroke-width": 1.25, "stroke-dasharray": "4 3" }, svg);
@@ -354,7 +368,7 @@
     });
     crosshair(svg, f, n => n === 0 ? "start" : `date ${n}<br>` + HED.map(h => `${h.short}: ${ro[h.key].L[n - 1].toFixed(2)}`).join("<br>") + `<br>payoff (no hedge): ${Zd[n - 1].toFixed(2)}`);
     document.getElementById("lgLoss").innerHTML = HED.map(h => `<span><i style="--c:${css(h.color)}"></i>${h.short} hedge</span>`).join("") +
-      `<span><i class="dash" style="--c:${css("--rule")}"></i>payoff owed (no hedge)</span><span><i class="dia" style="--c:${css("--muted")}"></i>exercise: loss locked in</span>`;
+      `<span><i class="dash" style="--c:${css("--rule")}"></i>payoff owed (no hedge)</span><span><i class="dash" style="--c:${css("--muted")}"></i>prices: a loss below the line is covered by the premium</span><span><i class="dia" style="--c:${css("--muted")}"></i>exercise: loss locked in</span>`;
   }
 
   function drawUrge() {
@@ -389,6 +403,7 @@
   }
 
   // ---------- scoreboard ----------
+  const soldRow = (k, v) => `<tr><td>${k}</td><td style="color:${v >= 0 ? css("--good") : css("--bad")}">${v >= 0 ? "+" : "−"}${fmt(Math.abs(v))}</td></tr>`;
   function drawScores() {
     HED.forEach(h => {
       const ro = st.ro[h.key], done = exercised(h);
@@ -409,7 +424,11 @@
           ${row(costLab, "+" + fmt(ro.C[i]))}
           ${hasU ? row("Unwinding the hedge", "+" + fmt(ro.U[i])) : ""}
           ${row("Seller's loss", fmt(ro.L[i]), "total")}
-        </table>`;
+        </table>
+        ${st.step === 0 && !done ? "" : `<table class="sold">
+          ${soldRow("Sold at the LSM price", M.lsm_price - ro.L[i])}
+          ${soldRow("Sold at the GDA price", pStar() - ro.L[i])}
+        </table>`}`;
     });
     const v = document.getElementById("verdict");
     const done = HED.every(exercised);
@@ -433,8 +452,21 @@
     document.getElementById("btnPlay").innerHTML = st.playing ? "&#10073;&#10073; Pause" : (n >= N() ? "&#8635; Replay" : "&#9654; Play");
   }
 
+  // ---------- prices ----------
+  const pStar = () => sc().published.p_star;
+  function drawPrices() {
+    const s = sc(), pub = s.published, prem = pub.p_star - M.lsm_price;
+    const tile = (color, k, v, se, n) => `<div class="card price" style="border-left:4px solid ${color}"><div class="k">${k}</div><div class="v">${fmt(v, 3)} <small>± ${fmt(se, 3)}</small></div><div class="n">${n}</div></div>`;
+    document.getElementById("prices").innerHTML =
+      tile(css("--rule"), "LSM price (classical, risk-neutral)", M.lsm_price, M.lsm_se,
+        "Average discounted payoff when the holder exercises by the LSM rule: the textbook Bermudan price. Ignores hedging risk and trading costs.") +
+      tile(css("--gda"), `GDA price p* (seller's risk-based price)`, pub.p_star, pub.p_star_se,
+        `CVaR<sub>0.9</sub> of the adversarial hedge's loss against its co-trained adversary, ${s.liquidity ? "with liquidity costs" : s.costs.c ? "with " + (100 * s.costs.c).toFixed(1) + "% costs" : "frictionless"}${s.costs.unwind === "cash" ? " and unwind cost" : ""}.`) +
+      `<div class="card price" style="border-left:4px solid ${css("--bad")}"><div class="k">Risk premium (GDA − LSM)</div><div class="v">+${fmt(prem, 2)} <small>+${(100 * prem / M.lsm_price).toFixed(0)}%</small></div><div class="n">What the seller charges on top of the classical price to cover the tail risk the hedge cannot remove (jumps${s.liquidity ? ", illiquidity" : s.costs.c ? ", costs" : ""}). Published values on 2<sup>18</sup> test paths.</div></div>`;
+  }
+
   function render() {
-    drawPlayer(); drawPrice(); drawDelta(); drawLoss(); drawUrge(); drawScores();
+    drawPlayer(); drawPrices(); drawPrice(); drawDelta(); drawLoss(); drawUrge(); drawScores();
   }
 
   // ---------- playback ----------
@@ -475,7 +507,7 @@
   let batchRun = 0;
   function runBatch() {
     const s = sc(), n = +document.getElementById("batchN").value, run = ++batchRun;
-    const X = { gda: [], lsm: [] }, base = 7_000_000 + Math.floor(Math.random() * 1e6) * 100;
+    const X = { gda: [], lsm: [] }, P = [], Z = [], base = 7_000_000 + Math.floor(Math.random() * 1e6) * 100;
     const prog = document.getElementById("prog"); prog.hidden = false; prog.max = n; prog.value = 0;
     document.getElementById("btnBatch").disabled = true;
     let i = 0;
@@ -488,11 +520,15 @@
         HED.forEach(h => {
           const ro = E.rollout(s, s.nets[h.hedger], s.nets[h.adv], p);
           X[h.key].push(ro.L[tl == null ? ro.tauAdv : tl]);
+          // GDA price p*: adversarial hedge against its co-trained adversary
+          if (h.key === "gda") P.push(ro.L[E.stopIndex(E.stopperLogits(s, s.nets.adv_gda_own, p, ro))]);
         });
+        // LSM price: discounted payoff under the LSM rule (no hedge needed: risk-neutral expectation)
+        Z.push(E.payoff(s.market, p.logS, (tl == null ? E.lsmStop(M.lsm_rule, p.logS) : tl) + 1));
         i++;
       }
       prog.value = i;
-      st.batch = { X, n: i, total: n, scen: s.id, holder: st.holder };
+      st.batch = { X, P, Z, n: i, total: n, scen: s.id, holder: st.holder };
       drawBatch();
       if (i < n) requestAnimationFrame(chunk);
       else { prog.hidden = true; document.getElementById("btnBatch").disabled = false; }
@@ -509,7 +545,11 @@
     const c = {}; HED.forEach(h => c[h.key] = E.cvar(b.X[h.key], 0.9));
     let wins = 0; for (let k = 0; k < b.n; k++) if (b.X.gda[k] < b.X.lsm[k] - 1e-9) wins++;
     const d = c.lsm.cvar - c.gda.cvar;
-    statsEl.innerHTML = HED.map(h => `<div class="stat" style="box-shadow:inset 3px 0 0 ${css(h.color)}"><div class="k">${h.short} hedge &middot; CVaR<sub>0.9</sub></div><div class="v" style="color:${css(h.color)}">${fmt(c[h.key].cvar, 3)}</div><div class="n">mean loss ${fmt(b.X[h.key].reduce((a, v) => a + v, 0) / b.n, 3)}</div></div>`).join("") +
+    const pe = E.cvar(b.P, 0.9), le = E.mean(b.Z), s = sc();
+    const est = (color, k, e, se, pub, pubSe) => `<div class="stat" style="box-shadow:inset 3px 0 0 ${color}"><div class="k">${k}</div><div class="v">${fmt(e, 3)} <span style="font-size:13px;font-weight:400;color:var(--muted)">± ${fmt(se, 3)}</span></div><div class="n">published ${fmt(pub, 3)} ± ${fmt(pubSe, 3)}</div></div>`;
+    statsEl.innerHTML = est(css("--rule"), "LSM price &middot; live estimate", le.mean, le.se, M.lsm_price, M.lsm_se) +
+      est(css("--gda"), "GDA price p* &middot; live estimate", pe.cvar, pe.se, s.published.p_star, s.published.p_star_se) +
+      HED.map(h => `<div class="stat" style="box-shadow:inset 3px 0 0 ${css(h.color)}"><div class="k">${h.short} hedge vs ${b.holder === "lsm" ? "LSM rule" : "fresh adversary"} &middot; CVaR<sub>0.9</sub></div><div class="v" style="color:${css(h.color)}">${fmt(c[h.key].cvar, 3)}</div><div class="n">mean loss ${fmt(b.X[h.key].reduce((a, v) => a + v, 0) / b.n, 3)}</div></div>`).join("") +
       `<div class="stat"><div class="k">Tail risk, LSM-trained minus adversarial</div><div class="v" style="color:${d > 0 ? css("--good") : css("--bad")}">${d >= 0 ? "+" : "−"}${fmt(Math.abs(d), 3)}</div><div class="n">${d > 0 ? "adversarial hedge has the smaller tail" : "LSM-trained hedge has the smaller tail"}</div></div>` +
       `<div class="stat"><div class="k">Paths simulated</div><div class="v">${b.n.toLocaleString()}</div><div class="n">adversarial hedge lost less on ${(100 * wins / b.n).toFixed(0)}% of them</div></div>`;
     // histogram
@@ -534,14 +574,18 @@
       const cv = c[h.key].cvar;
       el("line", { x1: x(cv), x2: x(cv), y1: Mg.t, y2: svg.H - Mg.b, stroke: css(h.color), "stroke-width": 2, "stroke-dasharray": "5 3" }, svg);
     });
-    el("text", { x: svg.W - Mg.r, y: svg.H - 8 + 0, "text-anchor": "end", dy: 0 }, svg);
+    [[M.lsm_price, "--rule", "LSM price"], [s.published.p_star, "--text", "GDA price"]].forEach(([v, c, lab], j) => {
+      if (v < lo || v > hi) return;
+      el("line", { x1: x(v), x2: x(v), y1: Mg.t, y2: svg.H - Mg.b, stroke: css(c), "stroke-width": 1.25, "stroke-dasharray": "1 3" }, svg);
+      el("text", { x: x(v) + 4, y: Mg.t + 12 + j * 14, style: `fill:${css(c)};font-size:11px` }, svg).textContent = `${lab} ${v.toFixed(2)}`;
+    });
     const hit = el("rect", { x: Mg.l, y: Mg.t, width: svg.W - Mg.l - Mg.r, height: svg.H - Mg.t - Mg.b, fill: "transparent" }, svg);
     hit.addEventListener("mousemove", e => {
       const r = svg.getBoundingClientRect(), vx = (e.clientX - r.left) / r.width * svg.W, k = Math.max(0, Math.min(nb - 1, Math.floor(((vx - Mg.l) / (svg.W - Mg.l - Mg.r)) * nb)));
       svg.tip(e, `loss ${(lo + k * w).toFixed(2)} to ${(lo + (k + 1) * w).toFixed(2)}<br>` + HED.map(h => `${h.short}: ${hist[h.key][k]} paths`).join("<br>"));
     });
     hit.addEventListener("mouseleave", e => svg.tip(e, null));
-    document.getElementById("lgHist").innerHTML = HED.map(h => `<span><i class="box" style="--c:${css(h.color)};opacity:.6"></i>${h.short} hedge: seller's loss per path</span><span><i class="dash" style="--c:${css(h.color)}"></i>its CVaR<sub>0.9</sub></span>`).join("") + `<span>x-axis: seller's loss &middot; y-axis: number of paths</span>`;
+    document.getElementById("lgHist").innerHTML = HED.map(h => `<span><i class="box" style="--c:${css(h.color)};opacity:.6"></i>${h.short} hedge: seller's loss per path</span><span><i class="dash" style="--c:${css(h.color)}"></i>its CVaR<sub>0.9</sub></span>`).join("") + `<span><i class="dash" style="--c:${css("--muted")}"></i>LSM / GDA price (dotted)</span><span>x-axis: seller's loss &middot; y-axis: number of paths</span>`;
   }
 
   // ---------- wiring ----------

@@ -131,15 +131,27 @@
       }
       const L = Zd[n + 1] - G + C + Un;
       out.D.push(d); out.G.push(G); out.C.push(C); out.U.push(Un); out.Zd.push(Zd[n + 1]); out.L.push(L); out.tradeCost.push(tc);
-      // adversary's view at t_{n+1}
-      const g = [t[n + 1] / T, Math.log(S[n + 1] / K) / xs, d, L / ps, S[n + 1] < K ? 1 : 0];
-      if (liq) g.push(...liqFeats(ex, n + 1, liq, mk.sigma));
-      out.logit.push(stopper ? mlp(stopper, g) : NaN);
       dp = d;
     }
+    out.logit = stopper ? stopperLogits(sc, stopper, path, out) : out.L.map(() => NaN);
     out.tauAdv = firstTrue(out.logit.map(v => v > 0));    // 0-based over dates 1..N
     return out;
   }
+
+  // Adversary's logits at dates 1..N given a hedger's rollout: it sees t, log-moneyness, the hedge
+  // held into the date, the seller's running loss, in-the-money flag (and the liquidity state).
+  function stopperLogits(sc, stopper, path, ro) {
+    const mk = sc.market, liq = sc.liquidity, N = mk.N, T = mk.T, K = mk.K, ex = path.extras;
+    const xs = mk.sigma * Math.sqrt(T), ps = K * mk.sigma * Math.sqrt(T), out = [];
+    for (let n = 1; n <= N; n++) {
+      const S = Math.exp(path.logS[n]);
+      const g = [n / N, Math.log(S / K) / xs, ro.D[n - 1], ro.L[n - 1] / ps, S < K ? 1 : 0];
+      if (liq) g.push(...liqFeats(ex, n, liq, mk.sigma));
+      out.push(mlp(stopper, g));
+    }
+    return out;
+  }
+  function stopIndex(logits) { return firstTrue(logits.map(v => v > 0)); }
 
   function firstTrue(mask) {
     for (let i = 0; i < mask.length - 1; i++) if (mask[i]) return i;
@@ -175,13 +187,24 @@
     return best;
   }
 
+  // Empirical CVaR_alpha (mean of the worst ceil((1-alpha) B) values) with the influence-function SE
+  // used in losses.cvar_estimate: psi(x) = VaR + (x - VaR)^+ / (1 - alpha).
   function cvar(X, alpha) {
-    const s = X.slice().sort((a, b) => b - a), k = Math.max(1, Math.ceil((1 - alpha) * s.length - 1e-9));
+    const s = X.slice().sort((a, b) => b - a), B = s.length, k = Math.max(1, Math.ceil((1 - alpha) * B - 1e-9));
     let m = 0; for (let i = 0; i < k; i++) m += s[i];
-    return { cvar: m / k, var: s[k - 1] };
+    const v = s[k - 1];
+    return { cvar: m / k, var: v, se: stdErr(X.map(x => v + Math.max(x - v, 0) / (1 - alpha))) };
   }
+  function mean(X) { return { mean: X.reduce((a, b) => a + b, 0) / X.length, se: stdErr(X) }; }
+  function stdErr(X) {
+    const B = X.length; if (B < 2) return NaN;
+    const m = X.reduce((a, b) => a + b, 0) / B;
+    return Math.sqrt(X.reduce((a, x) => a + (x - m) * (x - m), 0) / (B - 1) / B);
+  }
+  // Discounted put payoff at date index n (0..N) of a path.
+  function payoff(mk, logS, n) { return Math.exp(-mk.r * mk.T * n / mk.N) * Math.max(mk.K - Math.exp(logS[n]), 0); }
 
-  const api = { makeRng, simulatePath, rollout, lsmStop, lsmExercise, lsmBoundary, cvar, mlp };
+  const api = { makeRng, simulatePath, rollout, stopperLogits, stopIndex, lsmStop, lsmExercise, lsmBoundary, cvar, mean, payoff, mlp };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.DemoEngine = api;
 })(typeof window !== "undefined" ? window : this);
