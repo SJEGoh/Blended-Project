@@ -65,7 +65,8 @@ for each headline setting (frictionless, c = 0.5%, c = 0.5% + unwind, liquidity 
     open frontend/index.html           # or: python -m http.server -d frontend
 
 `frontend/demo.html` is the interactive version: it simulates a path in the browser, runs the trained
-adversarial and LSM-trained hedgers and the fresh adversary trained against each (or the LSM exercise rule),
+adversarial and LSM-trained hedgers, each attacked by the fresh adversary trained against it, by one shared
+adversary (to hold the attacker fixed), or by the LSM exercise rule,
 animates prices, hedge positions, the seller's running loss and each adversary's exercise probability, and can
 simulate thousands of paths to show the CVaR_0.9 tail. It also shows the two prices: the classical LSM price
 (risk-neutral expected payoff under the LSM exercise rule) and the GDA price p* (CVaR_0.9 of the adversarial

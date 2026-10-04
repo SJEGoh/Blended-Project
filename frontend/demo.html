@@ -44,6 +44,8 @@
   .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .seg button { border: 0; border-radius: 0; padding: 6px 12px; }
   .seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+  .seg button { white-space: nowrap; }
+  @media (max-width: 440px) { .seg button { padding: 6px 8px; font-size: 13px; } }
   .player { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; }
   .player input[type=range] { flex: 1; accent-color: var(--text); }
   .player .date { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; min-width: 120px; text-align: right; }
@@ -111,10 +113,18 @@
     </label>
     <div class="field">Holder exercises by
       <div class="seg" id="holder">
-        <button data-v="adv" aria-pressed="true">Adversary</button>
+        <button data-v="adv" aria-pressed="true" title="Each hedge is attacked by the adversary trained against it">Own adversary</button>
+        <button data-v="same" aria-pressed="false" title="Both hedges are attacked by one and the same adversary">Same adversary</button>
         <button data-v="lsm" aria-pressed="false">LSM rule</button>
       </div>
     </div>
+    <label class="field" id="sameField" hidden>Adversary attacking both hedges
+      <select id="sameAdv">
+        <option value="adv_vs_gda">A: trained against the adversarial hedge</option>
+        <option value="adv_vs_lsm">B: trained against the LSM-trained hedge</option>
+        <option value="adv_gda_own">Co-trained GDA adversary (defines p*)</option>
+      </select>
+    </label>
     <label class="field">Path seed
       <input type="number" id="seed" min="0" step="1">
     </label>
@@ -151,7 +161,7 @@
       </div>
       <div class="card" id="cardUrge">
         <h3>Adversary's urge to exercise</h3>
-        <p class="cap">Each adversary's exercise probability; it exercises the first time this crosses 50%. Each one was trained against its own hedger and sees that hedger's running loss.</p>
+        <p class="cap" id="capUrge"></p>
         <div class="chart" id="chUrge"></div>
       </div>
     </div>
@@ -202,10 +212,10 @@
   ];
 
   // ---------- state ----------
-  const st = { scen: M.scenarios[0].id, holder: "adv", seed: 1, step: 0, playing: false, path: null, ro: null, tauLsm: 0, batch: null };
-  try { const s = JSON.parse(localStorage.getItem("hedge-demo") || "{}"); if (s.scen) st.scen = s.scen; if (s.holder) st.holder = s.holder; } catch (e) {}
+  const st = { scen: M.scenarios[0].id, holder: "adv", sameAdv: "adv_vs_gda", seed: 1, step: 0, playing: false, path: null, ro: null, tauLsm: 0, batch: null };
+  try { const s = JSON.parse(localStorage.getItem("hedge-demo") || "{}"); if (s.scen) st.scen = s.scen; if (s.holder) st.holder = s.holder; if (s.sameAdv) st.sameAdv = s.sameAdv; } catch (e) {}
   if (!M.scenarios.some(s => s.id === st.scen)) st.scen = M.scenarios[0].id;
-  const save = () => { try { localStorage.setItem("hedge-demo", JSON.stringify({ scen: st.scen, holder: st.holder })); } catch (e) {} };
+  const save = () => { try { localStorage.setItem("hedge-demo", JSON.stringify({ scen: st.scen, holder: st.holder, sameAdv: st.sameAdv })); } catch (e) {} };
   const sc = () => M.scenarios.find(s => s.id === st.scen);
   const N = () => sc().market.N;
 
@@ -255,15 +265,34 @@
   }
 
   // ---------- simulation of the current path ----------
+  const ADV = {
+    adv_vs_gda: { name: "Adversary A", long: "Adversary A (trained against the adversarial hedge)" },
+    adv_vs_lsm: { name: "Adversary B", long: "Adversary B (trained against the LSM-trained hedge)" },
+    adv_gda_own: { name: "Co-trained adversary", long: "the co-trained GDA adversary" },
+  };
+  if (!ADV[st.sameAdv]) st.sameAdv = "adv_vs_gda";
+  if (!["adv", "same", "lsm"].includes(st.holder)) st.holder = "adv";
+  // which adversary network attacks hedge h under the current holder mode
+  const advKey = h => st.holder === "same" ? st.sameAdv : h.adv;
+  const advName = h => st.holder === "same" ? ADV[st.sameAdv].name : `${h.short} hedge's adversary`;
+  const holderLabel = () => st.holder === "lsm" ? "LSM rule" : st.holder === "same" ? ADV[st.sameAdv].name + " (both)" : "own adversary";
+
   function compute() {
     const s = sc();
     st.path = E.simulatePath(s.market, s.liquidity, st.seed);
     st.ro = {};
-    HED.forEach(h => { st.ro[h.key] = E.rollout(s, s.nets[h.hedger], s.nets[h.adv], st.path); });
+    HED.forEach(h => { st.ro[h.key] = E.rollout(s, s.nets[h.hedger], null, st.path); });
     st.tauLsm = E.lsmStop(M.lsm_rule, st.path.logS);
     if (!st.boundary) st.boundary = Array.from({ length: s.market.N + 1 }, (_, n) => n > 0 && n < s.market.N ? E.lsmBoundary(M.lsm_rule, n, 50) : NaN);
+    computeLogits();
   }
-  const tau = h => st.holder === "lsm" ? st.tauLsm : st.ro[h.key].tauAdv;   // 0-based over dates 1..N
+  // adversary logits for the current holder mode (each hedge's own adversary, or one shared adversary)
+  function computeLogits() {
+    const s = sc();
+    st.lg = {};
+    HED.forEach(h => { st.lg[h.key] = E.stopperLogits(s, s.nets[advKey(h)], st.path, st.ro[h.key]); });
+  }
+  const tau = h => st.holder === "lsm" ? st.tauLsm : E.stopIndex(st.lg[h.key]);   // 0-based over dates 1..N
   const exDate = h => tau(h) + 1;                                            // date index 1..N
   const exercised = h => st.step >= exDate(h);
 
@@ -306,7 +335,7 @@
     });
     // exercise markers
     const marks = [];
-    if (st.holder === "adv") HED.forEach(h => { if (exercised(h)) marks.push([exDate(h), css(h.color), `${h.short} hedge's adversary exercises`]); });
+    if (st.holder !== "lsm") HED.forEach(h => { if (exercised(h)) marks.push([exDate(h), css(h.color), `${advName(h)} exercises against the ${h.short} hedge`]); });
     if (st.step >= st.tauLsm + 1) marks.push([st.tauLsm + 1, css("--rule"), "LSM rule exercises"]);
     const seen = {};
     marks.forEach(([n, c, lab]) => {
@@ -318,7 +347,7 @@
     crosshair(svg, f, n => `date ${n} &middot; S = ${S[n].toFixed(2)}` + (liq ? `<br>illiquidity ℓ = ${liq.ell[n].toFixed(2)}` : ""));
     const lg = [`<span><i style="--c:${css("--text")}"></i>stock</span>`, `<span><i class="box" style="--c:${css("--exregion")};background:${css("--exregion")};border:1px solid ${css("--border")}"></i>LSM exercise region</span>`,
       `<span><i class="dia" style="--c:${css("--rule")}"></i>LSM rule exercises</span>`];
-    if (st.holder === "adv") HED.forEach(h => lg.push(`<span><i class="dia" style="--c:${css(h.color)}"></i>adversary vs ${h.short}</span>`));
+    if (st.holder !== "lsm") HED.forEach(h => lg.push(`<span><i class="dia" style="--c:${css(h.color)}"></i>${st.holder === "same" ? ADV[st.sameAdv].name + " on " + h.short + " hedge" : "adversary vs " + h.short}</span>`));
     lg.push(`<span><i class="box" style="--c:${css("--bad")}; width:9px; height:7px; clip-path:polygon(0 0,100% 0,50% 100%)"></i>jump</span>`);
     if (liq) lg.push(`<span><i class="box" style="--c:rgba(${css("--liq")},.7)"></i>illiquidity (darker = thinner market)</span>`);
     document.getElementById("lgPrice").innerHTML = lg.join("");
@@ -373,19 +402,22 @@
 
   function drawUrge() {
     const card = document.getElementById("cardUrge");
-    card.style.display = st.holder === "adv" ? "" : "none";
-    if (st.holder !== "adv") return;
+    card.style.display = st.holder !== "lsm" ? "" : "none";
+    if (st.holder === "lsm") return;
+    document.getElementById("capUrge").innerHTML = st.holder === "same"
+      ? `Exercise probability of ${ADV[st.sameAdv].long}, watching each hedge. It is one network, but it sees each hedge's position and running loss, so it can still exercise on different dates.`
+      : `Each adversary's exercise probability; it exercises the first time this crosses 50%. Each one was trained against its own hedge and sees that hedge's position and running loss.`;
     const svg = box("chUrge", 140);
     const f = frame(svg, 0, 1, { yTicks: 2, yFmt: t => Math.round(t * 100) + "%" });
     el("line", { x1: f.M.l, x2: svg.W - f.M.r, y1: f.y(0.5), y2: f.y(0.5), stroke: css("--muted"), "stroke-dasharray": "5 4" }, svg);
     el("text", { x: svg.W - f.M.r, y: f.y(0.5) - 4, "text-anchor": "end" }, svg).textContent = "exercise threshold";
     HED.forEach(h => {
-      const lg = st.ro[h.key].logit, e = exDate(h);
+      const lg = st.lg[h.key], e = exDate(h);
       const pts = lg.map((v, i) => [f.x(i + 1), f.y(1 / (1 + Math.exp(-v)))]).slice(0, Math.min(st.step, e));
       el("path", { d: pathD(pts), fill: "none", stroke: css(h.color), "stroke-width": 2 }, svg);
       if (exercised(h)) diamond(svg, f.x(e), f.y(Math.min(1, 1 / (1 + Math.exp(-lg[e - 1])))), css(h.color), 6);
     });
-    crosshair(svg, f, n => n === 0 ? "start" : `date ${n}<br>` + HED.map(h => `${h.short}'s adversary: ${(100 / (1 + Math.exp(-st.ro[h.key].logit[n - 1]))).toFixed(0)}%`).join("<br>"));
+    crosshair(svg, f, n => n === 0 ? "start" : `date ${n}<br>` + HED.map(h => `${st.holder === "same" ? ADV[st.sameAdv].name + " on " + h.short : h.short + "'s adversary"}: ${(100 / (1 + Math.exp(-st.lg[h.key][n - 1]))).toFixed(0)}%`).join("<br>"));
   }
 
   function hoverTip(node, svg, html) { node.addEventListener("mousemove", e => svg.tip(e, html)); node.addEventListener("mouseleave", e => svg.tip(e, null)); }
@@ -414,7 +446,7 @@
       document.getElementById(h.key === "gda" ? "scoreGda" : "scoreLsm").innerHTML = `
         <h3>${h.name}${done ? "" : `<span class="badge live">live</span>`}</h3>
         <div class="status">${done
-          ? `Exercised at <b>date ${n}</b> by ${st.holder === "adv" ? "its adversary" : "the LSM rule"}`
+          ? `Exercised at <b>date ${n}</b> by ${st.holder === "lsm" ? "the LSM rule" : st.holder === "same" ? ADV[st.sameAdv].name : "its own adversary"}`
           : st.step === 0 ? "Press play or drag the slider" : `Not exercised yet &middot; shown: if exercised at date ${n}`}</div>
         <div class="big" style="color:${css(h.color)}">${st.step === 0 && !done ? "—" : fmt(ro.L[i])}</div>
         <div class="biglab">seller's loss${done ? "" : " (so far)"}</div>
@@ -440,7 +472,9 @@
       v.innerHTML = `<h3>On this path</h3><p style="margin:6px 0 0">${who
         ? `<span class="win" style="color:${css(who.color)}">${who.name}</span> lost <b>${fmt(Math.abs(d))}</b> less.`
         : `Both hedges lost the same.`}</p>
-        <p class="cap" style="margin:8px 0 0">A single path is noisy: either hedge can win. What matters is the tail, below.</p>`;
+        <p class="cap" style="margin:8px 0 0">${st.holder === "same"
+          ? `Both hedges faced the same attacker (${ADV[st.sameAdv].name}), so the difference comes from the hedges themselves. `
+          : st.holder === "adv" ? `Each hedge faced the adversary trained against it; switch to <b>Same adversary</b> to hold the attacker fixed. ` : ""}A single path is noisy: either hedge can win. What matters is the tail, below.</p>`;
     }
   }
 
@@ -495,8 +529,8 @@
     const s = sc(), base = Math.floor(Math.random() * 1e6) * 1000, cand = [];
     for (let k = 0; k < 300; k++) {
       const seed = base + k, p = E.simulatePath(s.market, s.liquidity, seed);
-      const ro = E.rollout(s, s.nets.hedger_lsm, s.nets.adv_vs_lsm, p);
-      const t = st.holder === "lsm" ? E.lsmStop(M.lsm_rule, p.logS) : ro.tauAdv;
+      const ro = E.rollout(s, s.nets.hedger_lsm, null, p);
+      const t = st.holder === "lsm" ? E.lsmStop(M.lsm_rule, p.logS) : E.stopIndex(E.stopperLogits(s, s.nets[advKey(HED[1])], p, ro));
       cand.push([ro.L[t], seed]);
     }
     cand.sort((a, b) => b[0] - a[0]);
@@ -518,8 +552,8 @@
         const p = E.simulatePath(s.market, s.liquidity, base + i);
         const tl = st.holder === "lsm" ? E.lsmStop(M.lsm_rule, p.logS) : null;
         HED.forEach(h => {
-          const ro = E.rollout(s, s.nets[h.hedger], s.nets[h.adv], p);
-          X[h.key].push(ro.L[tl == null ? ro.tauAdv : tl]);
+          const ro = E.rollout(s, s.nets[h.hedger], null, p);
+          X[h.key].push(ro.L[tl == null ? E.stopIndex(E.stopperLogits(s, s.nets[advKey(h)], p, ro)) : tl]);
           // GDA price p*: adversarial hedge against its co-trained adversary
           if (h.key === "gda") P.push(ro.L[E.stopIndex(E.stopperLogits(s, s.nets.adv_gda_own, p, ro))]);
         });
@@ -528,7 +562,7 @@
         i++;
       }
       prog.value = i;
-      st.batch = { X, P, Z, n: i, total: n, scen: s.id, holder: st.holder };
+      st.batch = { X, P, Z, n: i, total: n, scen: s.id, mode: batchMode() };
       drawBatch();
       if (i < n) requestAnimationFrame(chunk);
       else { prog.hidden = true; document.getElementById("btnBatch").disabled = false; }
@@ -536,9 +570,10 @@
     chunk();
   }
 
+  const batchMode = () => st.holder === "same" ? "same:" + st.sameAdv : st.holder;
   function drawBatch() {
     const b = st.batch, statsEl = document.getElementById("stats");
-    if (!b || b.scen !== st.scen || b.holder !== st.holder) {
+    if (!b || b.scen !== st.scen || b.mode !== batchMode()) {
       statsEl.innerHTML = `<div class="stat"><div class="k">No simulation yet</div><div class="n">Press <b>Simulate paths</b> to run both hedges over many fresh paths under the selected holder behaviour.</div></div>`;
       box("chHist", 40); document.getElementById("lgHist").innerHTML = ""; return;
     }
@@ -549,7 +584,7 @@
     const est = (color, k, e, se, pub, pubSe) => `<div class="stat" style="box-shadow:inset 3px 0 0 ${color}"><div class="k">${k}</div><div class="v">${fmt(e, 3)} <span style="font-size:13px;font-weight:400;color:var(--muted)">± ${fmt(se, 3)}</span></div><div class="n">published ${fmt(pub, 3)} ± ${fmt(pubSe, 3)}</div></div>`;
     statsEl.innerHTML = est(css("--rule"), "LSM price &middot; live estimate", le.mean, le.se, M.lsm_price, M.lsm_se) +
       est(css("--gda"), "GDA price p* &middot; live estimate", pe.cvar, pe.se, s.published.p_star, s.published.p_star_se) +
-      HED.map(h => `<div class="stat" style="box-shadow:inset 3px 0 0 ${css(h.color)}"><div class="k">${h.short} hedge vs ${b.holder === "lsm" ? "LSM rule" : "fresh adversary"} &middot; CVaR<sub>0.9</sub></div><div class="v" style="color:${css(h.color)}">${fmt(c[h.key].cvar, 3)}</div><div class="n">mean loss ${fmt(b.X[h.key].reduce((a, v) => a + v, 0) / b.n, 3)}</div></div>`).join("") +
+      HED.map(h => `<div class="stat" style="box-shadow:inset 3px 0 0 ${css(h.color)}"><div class="k">${h.short} hedge vs ${holderLabel()} &middot; CVaR<sub>0.9</sub></div><div class="v" style="color:${css(h.color)}">${fmt(c[h.key].cvar, 3)}</div><div class="n">mean loss ${fmt(b.X[h.key].reduce((a, v) => a + v, 0) / b.n, 3)}</div></div>`).join("") +
       `<div class="stat"><div class="k">Tail risk, LSM-trained minus adversarial</div><div class="v" style="color:${d > 0 ? css("--good") : css("--bad")}">${d >= 0 ? "+" : "−"}${fmt(Math.abs(d), 3)}</div><div class="n">${d > 0 ? "adversarial hedge has the smaller tail" : "LSM-trained hedge has the smaller tail"}</div></div>` +
       `<div class="stat"><div class="k">Paths simulated</div><div class="v">${b.n.toLocaleString()}</div><div class="n">adversarial hedge lost less on ${(100 * wins / b.n).toFixed(0)}% of them</div></div>`;
     // histogram
@@ -598,9 +633,13 @@
     b.onclick = () => {
       st.holder = b.dataset.v; save();
       document.querySelectorAll("#holder button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === st.holder));
-      render(); drawBatch();
+      syncSame(); computeLogits(); render(); drawBatch();
     };
   });
+  const sameSel = document.getElementById("sameAdv");
+  function syncSame() { document.getElementById("sameField").hidden = st.holder !== "same"; sameSel.value = st.sameAdv; }
+  sameSel.onchange = () => { st.sameAdv = sameSel.value; save(); computeLogits(); render(); drawBatch(); };
+  syncSame();
   document.getElementById("btnRandom").onclick = () => newPath(Math.floor(Math.random() * 1e9));
   document.getElementById("btnTail").onclick = () => newPath(tailSeed());
   document.getElementById("seed").onchange = e => newPath(Math.max(0, Math.floor(+e.target.value || 0)));
