@@ -1,0 +1,385 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\T}{\mathcal{T}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\CVaR}{\mathrm{CVaR}}
+\newcommand{\VaR}{\mathrm{VaR}}
+\newcommand{\St}{\tilde S}
+\newcommand{\Zt}{\tilde Z}
+\newcommand{\Gt}{\tilde G}
+
+\title{Pricing and Hedging American Options Against an Adversarial Exerciser:\\ Methodology}
+\author{[Author names]}
+\date{Draft}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We compute the seller's risk-based price of a Bermudan put under jump and liquidity risk when the holder's
+exercise time is chosen adversarially among all non-anticipative rules. The price is the value of a
+two-player zero-sum stochastic game between a hedging policy (the seller) and a stopping policy (the
+holder), with the seller's conditional value-at-risk (CVaR) of the hedged loss as payoff. Both policies are
+neural networks trained by gradient descent--ascent through a differentiable market simulator. This note
+sets out the model, the pricing problem, its basic properties and no-arbitrage guarantees, the numerical
+method, and the evaluation protocol, including a martingale-duality certificate for the worst case.
+\end{abstract}
+
+\section{Market model}
+
+\paragraph{Time grid and information.}
+Exercise and rebalancing take place on the grid $0=t_0<t_1<\dots<t_N=T$ with $t_n=n\,\Delta t$,
+$\Delta t=T/N$. At each step $n\to n+1$ the market draws a vector of shocks
+$\xi_{n+1}=(Z_{n+1},\,N_{n+1},\,Z'_{n+1},\,\varepsilon_{n+1},\,\varepsilon'_{n+1})$, independent over time,
+with $Z,Z',\varepsilon,\varepsilon'\sim\mathcal N(0,1)$ and $N_{n+1}\sim\mathrm{Poisson}(\lambda\Delta t)$.
+The information available at $t_n$ is $\F_n=\sigma(\xi_1,\dots,\xi_n)$. All decisions are required to be
+$(\F_n)$-adapted.
+
+\paragraph{Stock price.}
+The stock follows a Merton jump-diffusion, simulated exactly on the grid:
+\begin{equation}\label{eq:merton}
+\log S_{n+1}=\log S_n+\Big(\mu-\lambda\kappa-\tfrac12\sigma^2\Big)\Delta t+\sigma\sqrt{\Delta t}\,Z_{n+1}
++N_{n+1}\,m+\delta_J\sqrt{N_{n+1}}\,Z'_{n+1},
+\qquad \kappa=e^{m+\delta_J^2/2}-1 .
+\end{equation}
+Prices are expressed in discounted units, $\St_n=e^{-rt_n}S_n$. Unless stated otherwise $\mu=r$, so the
+simulation measure is a pricing measure.
+
+\paragraph{Liquidity state.}
+Three non-tradable state variables are computed from returns $r_n=\log S_n-\log S_{n-1}$ and the liquidity
+noises, using only information up to $t_n$:
+\begin{align}
+x_{n+1}&=\min\!\Big(x_n-\kappa_\ell x_n\Delta t+\eta\sqrt{\Delta t}\,\varepsilon_{n+1}
++\beta\,(-r_{n+1}-h)^+,\ \log\ell_{\max}\Big),\qquad \ell_n=e^{x_n},\ x_0=0,\label{eq:illiq}\\
+\log v_n&=\gamma_v\Big(\min(|z_n|,z_{\mathrm{cap}})-\sqrt{2/\pi}\Big)+\zeta\,\varepsilon'_n-\tfrac12\zeta^2,
+\qquad z_n=\frac{r_n}{\sigma\sqrt{\Delta t}},\label{eq:volume}\\
+\hat\sigma_n^2&=(1-w)\,\hat\sigma_{n-1}^2+w\,\frac{r_n^2}{\Delta t},\qquad \hat\sigma_0=\sigma,\label{eq:ewma}
+\end{align}
+with $h=h_{\mathrm{mult}}\,\sigma\sqrt{\Delta t}$. Illiquidity $\ell$ mean-reverts to $1$ and jumps up after
+large declines only; relative volume $v$ rises with the size of price moves; $\hat\sigma$ is an
+exponentially weighted volatility estimate. The state affects trading costs only; it does not feed back
+into prices.
+
+\paragraph{Trading costs.}
+Trading $q\ge 0$ shares per option at $t_n$ costs, in discounted units,
+\begin{equation}\label{eq:cost}
+c_n(q)=\Big[s_0\,\ell_n\,\rho_n\,q+Y\,\ell_n\,\frac{\rho_n\sigma}{\sqrt{252}}\sqrt{\frac{\psi}{v_n}}\;q^{3/2}\Big]\St_n,
+\qquad \rho_n=\min\!\Big(\frac{\hat\sigma_n}{\sigma},\rho_{\max}\Big),
+\end{equation}
+a volatility-proportional half-spread plus square-root market impact. The cost is convex in $q$.
+Settings without liquidity risk use proportional costs $c_n(q)=c\,q\,\St_n$ instead, with $c\in\{0,0.005\}$.
+
+\section{The pricing problem}
+
+\paragraph{Contract.} A Bermudan put with discounted payoff $\Zt_n=e^{-rt_n}(K-S_n)^+$, exercisable at
+$n=1,\dots,N$ and exercised automatically at $N$.
+
+\paragraph{Players.}
+\begin{itemize}[leftmargin=*]
+\item The \emph{holder} chooses an exercise rule, a stopping time $\tau$ with values in $\{1,\dots,N\}$,
+  i.e.\ $\{\tau=n\}\in\F_n$. Let $\T$ denote the set of such rules.
+\item The \emph{seller} chooses a hedge $\delta=(\delta_0,\dots,\delta_{N-1})$ with $\delta_n$
+  $\F_n$-measurable, held over $[t_n,t_{n+1})$. Let $\D$ denote the set of admissible hedges.
+\end{itemize}
+
+\begin{assumption}\label{ass:standing}
+(i) $|\delta_n|\le\delta_{\max}$ for all $n$; (ii) $\E|\St_n|<\infty$ and $\E|\Zt_n|<\infty$;
+(iii) costs are non-negative and vanish when nothing is traded.
+\end{assumption}
+
+\paragraph{Seller's loss.} With $\delta_{-1}=0$, define
+\begin{align*}
+\Gt_n(\delta)&=\sum_{k<n}\delta_k\,(\St_{k+1}-\St_k) &&\text{(hedge gains)}\\
+C_n(\delta)&=\sum_{k<n}c_k\big(|\delta_k-\delta_{k-1}|\big) &&\text{(trading costs)}\\
+U_n(\delta)&=c_n\big(|\delta_{n-1}|\big)\ \text{(cash unwind) or } 0 &&\text{(cost of closing the hedge at exercise)}\\
+L_n(\delta)&=\Zt_n-\Gt_n(\delta)+C_n(\delta)+U_n(\delta) &&\text{(seller's loss if exercised at $t_n$).}
+\end{align*}
+
+\paragraph{Risk measure.} For $\alpha\in[0,1)$ and integrable $X$,
+\begin{equation}\label{eq:ru}
+\CVaR_\alpha(X)=\min_{c\in\mathbb R}\Big\{c+\frac{\E[(X-c)^+]}{1-\alpha}\Big\}
+=\frac{1}{1-\alpha}\int_\alpha^1\VaR_u(X)\,du ,
+\end{equation}
+the average of the worst $(1-\alpha)$ share of outcomes; $\CVaR_0=\E$. We use that $\CVaR_\alpha$ is
+monotone, cash-invariant ($\CVaR_\alpha(X+m)=\CVaR_\alpha(X)+m$), convex, and non-decreasing in $\alpha$.
+
+\begin{definition}[Prices]
+For an assumed exercise rule $\tau_0\in\T$ (e.g.\ the Longstaff--Schwartz rule) and for worst-case exercise,
+\[
+p(\tau_0)=\inf_{\delta\in\D}\CVaR_\alpha\big(L_{\tau_0}(\delta)\big),
+\qquad
+W(\delta)=\sup_{\tau\in\T}\CVaR_\alpha\big(L_\tau(\delta)\big),
+\qquad
+p^*=\inf_{\delta\in\D}W(\delta).
+\]
+The \emph{underpricing} of the assumed rule is $\Delta(\tau_0)=p^*-p(\tau_0)$. The classical Bermudan
+price is $V_0=\sup_{\tau\in\T}\E[\Zt_\tau]$.
+\end{definition}
+
+By cash-invariance, $\CVaR_\alpha(L_\tau-p^*)=\CVaR_\alpha(L_\tau)-p^*$, so $p^*$ is the smallest premium at
+which the seller's average result over the worst $(1-\alpha)$ of scenarios breaks even under any
+non-anticipative exercise rule.
+
+\section{Properties}
+
+\begin{proposition}[Robustness]\label{prop:robust}
+For every $\delta\in\D$ and $\tau\in\T$, $\CVaR_\alpha(L_\tau(\delta))\le W(\delta)$.
+\end{proposition}
+\begin{proof}
+$W(\delta)$ is the supremum over $\T$ and $\tau\in\T$.
+\end{proof}
+
+\begin{proposition}[Non-negative underpricing]\label{prop:underpricing}
+For every $\tau_0\in\T$, $p(\tau_0)\le p^*$, i.e.\ $\Delta(\tau_0)\ge 0$.
+\end{proposition}
+\begin{proof}
+For each $\delta$, $\CVaR_\alpha(L_{\tau_0}(\delta))\le W(\delta)$ by Proposition~\ref{prop:robust}; take the
+infimum over $\delta$. The Longstaff--Schwartz rule decides at $t_n$ from $S_n$ only, hence lies in $\T$.
+\end{proof}
+
+\begin{lemma}[Martingale property]\label{lem:mart}
+If $\mu=r$, then $\E[\St_{n+1}\mid\F_n]=\St_n$.
+\end{lemma}
+\begin{proof}
+By independence of the shocks, $\E[S_{n+1}/S_n\mid\F_n]=e^{(r-\lambda\kappa-\sigma^2/2)\Delta t}\,
+\E[e^{\sigma\sqrt{\Delta t}Z}]\,\E[e^{J}]$, where $J$ is the jump term in~\eqref{eq:merton}. Here
+$\E[e^{\sigma\sqrt{\Delta t}Z}]=e^{\sigma^2\Delta t/2}$, and $J$ is a Poisson($\lambda\Delta t$) sum of
+independent $\mathcal N(m,\delta_J^2)$ jumps, each with $\E[e^{Y}]=1+\kappa$, so
+$\E[e^{J}]=\exp(\lambda\Delta t\,\kappa)$. Hence $\E[S_{n+1}/S_n\mid\F_n]=e^{r\Delta t}$.
+\end{proof}
+
+\begin{proposition}[Risk-neutral reduction]\label{prop:rn}
+Let $\mu=r$ and $\alpha=0$. Then $p^*=V_0$, attained by the hedge $\delta\equiv0$, also in the presence of
+non-negative trading costs. For every $\tau_0\in\T$, $\Delta(\tau_0)=V_0-\E[\Zt_{\tau_0}]\ge0$, with
+equality if $\tau_0$ is a risk-neutral optimal rule.
+\end{proposition}
+\begin{proof}
+By Lemma~\ref{lem:mart} and Assumption~\ref{ass:standing}(i), $\Gt$ is a martingale with $\Gt_0=0$.
+For bounded $\tau\le N$, $\Gt_\tau=\sum_k\mathbf 1\{\tau>k\}\delta_k(\St_{k+1}-\St_k)$ with
+$\mathbf 1\{\tau>k\}$ $\F_k$-measurable, so $\E[\Gt_\tau]=0$ (optional stopping). Hence
+$\E[L_\tau(\delta)]=\E[\Zt_\tau]+\E[C_\tau+U_\tau]\ge\E[\Zt_\tau]$, with equality at $\delta\equiv0$.
+Taking $\sup_\tau$ then $\inf_\delta$ gives $p^*=V_0$. Similarly $p(\tau_0)=\E[\Zt_{\tau_0}]$.
+\end{proof}
+
+\begin{proposition}[Ordering]\label{prop:order}
+(a) $p^*$ is non-decreasing in $\alpha$. (b) If $\mu=r$, then $p^*\ge V_0$ for every $\alpha$.
+(c) If $x\in\mathbb R$ and $\delta\in\D$ satisfy $x+\Gt_n(\delta)-C_n(\delta)-U_n(\delta)\ge\Zt_n$ for all
+$n$ almost surely (a super-hedge), then $p^*\le x$.
+\end{proposition}
+\begin{proof}
+(a) By~\eqref{eq:ru}, $\CVaR_\alpha$ averages the non-decreasing map $u\mapsto\VaR_u$ over $[\alpha,1)$;
+suprema and infima preserve the ordering. (b) Follows from (a) and Proposition~\ref{prop:rn}.
+(c) The super-hedge gives $L_n(\delta)\le x$ for all $n$, hence $L_\tau(\delta)\le x$ and, by monotonicity,
+$W(\delta)\le x$.
+\end{proof}
+
+\begin{proposition}[Order of play]\label{prop:minimax}
+$\sup_{\tau}\inf_{\delta}\CVaR_\alpha(L_\tau(\delta))\le p^*$. If $(\delta^*,\tau^*)$ is a saddle point,
+then $p^*=\CVaR_\alpha(L_{\tau^*}(\delta^*))$ and the two orders of play agree.
+\end{proposition}
+\begin{proof}
+For any $\tau',\delta'$: $\inf_\delta\CVaR(L_{\tau'}(\delta))\le\CVaR(L_{\tau'}(\delta'))\le W(\delta')$;
+take $\sup_{\tau'}$ and $\inf_{\delta'}$. At a saddle point both inequalities hold with equality.
+\end{proof}
+
+\begin{remark}
+Existence of a saddle point is not guaranteed: the objective is not convex--concave in the network
+parameters and pure stopping rules do not form a convex set. Relaxed (randomised) stopping, used in
+training (Section~\ref{sec:method}), is the standard device that convexifies stopping games. We therefore
+approximate the seller-first value $p^*$ and assess the approximation empirically
+(Section~\ref{sec:eval}) and, on the holder's side, rigorously via duality (Section~\ref{sec:dual}).
+\end{remark}
+
+\section{No-arbitrage}
+
+\begin{theorem}[Arbitrage-free market]\label{thm:na}
+Let $\mu=r$. No admissible strategy $\delta$ satisfies $\Gt_N(\delta)-C_N(\delta)\ge0$ almost surely with
+$\mathbb P(\Gt_N(\delta)-C_N(\delta)>0)>0$.
+\end{theorem}
+\begin{proof}
+By Lemma~\ref{lem:mart}, $\E[\Gt_N]=0$. If $\Gt_N-C_N\ge0$ then $\Gt_N\ge C_N\ge0$; a non-negative
+variable with zero mean vanishes almost surely, so $\Gt_N=0$ and then $C_N=0$.
+\end{proof}
+
+\begin{theorem}[Arbitrage-free price]\label{thm:price}
+Let $\mu=r$ and let $\pi_{\mathrm{sub}}$ and $\pi_{\sup}$ denote the sub- and super-hedging prices of the
+option. Then $\pi_{\mathrm{sub}}\le V_0\le p^*\le\pi_{\sup}$, so trading the option at $p^*$ creates no
+arbitrage.
+\end{theorem}
+\begin{proof}
+If a buyer can lock in $x$, i.e.\ $-x+\Zt_\tau+\Gt_\tau(\delta)-C_\tau(\delta)\ge0$ a.s.\ for some
+$\tau,\delta$, taking expectations and using $\E[\Gt_\tau]=0$ and $C\ge0$ gives $x\le\E[\Zt_\tau]\le V_0$;
+hence $\pi_{\mathrm{sub}}\le V_0$. The remaining inequalities are Proposition~\ref{prop:order}(b),(c).
+\end{proof}
+
+\begin{theorem}[Consistency across strikes]\label{thm:strikes}
+Write $p^*(K)$ for the price at strike $K$. For $K'<K$, $0\le p^*(K)-p^*(K')\le K-K'$, and $K\mapsto p^*(K)$
+is convex.
+\end{theorem}
+\begin{proof}
+Pathwise $0\le(K-S)^+-(K'-S)^+\le K-K'$, so $L(K')\le L(K)\le L(K')+(K-K')$ for every $\delta,\tau$;
+monotonicity and cash-invariance carry this through $\CVaR$, $\sup_\tau$ and $\inf_\delta$. For convexity,
+$L_n(\delta,K)$ is jointly convex in $(\delta,K)$ (payoff convex in $K$, gains linear in $\delta$, costs
+convex in $\delta$); $\CVaR$ is convex and monotone, a supremum of convex functions is convex, and
+partial minimisation of a jointly convex function over $\delta$ preserves convexity in $K$.
+\end{proof}
+
+\begin{remark}
+These results concern admissible strategies. The implementation enforces adaptedness through the network
+inputs (checked by permutation tests on future shocks) and should bound the hedge output, e.g.\
+$\delta_n=\delta_{\max}\tanh(\cdot)$. Under a real-world measure ($\mu\neq r$), hedge gains carry a risk
+premium, and the seller's price must be defined as an indifference price,
+$p^*-\inf_\delta\CVaR_\alpha(-\Gt_N(\delta)+C_N(\delta))$, to exclude speculative gains.
+\end{remark}
+
+\section{Numerical method}\label{sec:method}
+
+\paragraph{Policies.} Both players are feed-forward networks (two hidden layers of width 64, SiLU
+activations) shared across dates, with time as an input. Inputs are rescaled by fixed constants
+($\sigma\sqrt T$ for log-moneyness, $K\sigma\sqrt T$ for money amounts):
+\begin{align*}
+\delta_n&=H_\theta\big(t_n/T,\ \log(S_n/K),\ \delta_{n-1},\ \log\ell_n,\ \log v_n,\ \log(\hat\sigma_n/\sigma)\big),\\
+g_n&=S_\phi\big(t_n/T,\ \log(S_n/K),\ \delta_{n-1},\ L_n,\ \mathbf 1\{S_n<K\},\ \log\ell_n,\ \log v_n,\ \log(\hat\sigma_n/\sigma)\big).
+\end{align*}
+Both are $\F_n$-measurable by construction. The liquidity inputs are omitted in settings without
+liquidity risk.
+
+\paragraph{Relaxed stopping.} Training uses stopping probabilities
+$f_n=\mathrm{sigmoid}(g_n/T_{\mathrm{temp}})$ with $f_N=1$, the stopping distribution
+$p_n=f_n\prod_{k<n}(1-f_k)$, and the per-path relaxed loss $X=\sum_n p_nL_n$. The temperature is annealed
+geometrically from $1$ to $0.1$. All reported values use the hard rule
+$\tau=\min\{n: g_n>0\}\wedge N$, which is a stopping time.
+
+\paragraph{Objective and gradients.} On a batch of $B$ simulated paths, $\CVaR_\alpha$ is estimated by the
+mean of the largest $\lceil(1-\alpha)B\rceil$ values of $X$ and differentiated through the selection.
+Gradients flow pathwise through the simulator with respect to the network parameters; the shocks are
+fixed given the draw and do not depend on the policies (deep hedging; deep empirical risk minimisation).
+The hedger's gradient also flows through the stopper's inputs ($\delta_{n-1}$, $L_n$), so the hedger
+responds to the holder's reaction.
+
+\paragraph{Gradient descent--ascent.} Each outer iteration performs $k=5$ ascent steps on $\phi$ (holder,
+maximising the relaxed CVaR) with fresh paths and the hedger frozen, then one descent step on $\theta$
+(seller). Adam with learning rate $10^{-3}$ and cosine decay is used for both. Stabilisers:
+\begin{itemize}[leftmargin=*]
+\item \emph{Warm start:} the stopper is first fitted (300 binary cross-entropy steps) to the rule
+  ``exercise iff $S_n<K$ and $K-S_n$ exceeds the Merton European value'', since a randomly initialised
+  stopper collapses to never exercising early.
+\item \emph{Adversary pool:} every 200 iterations a copy of the stopper is stored; the hedger minimises the
+  maximum of the CVaR against the current stopper and against a randomly drawn stored copy.
+\item \emph{Restarts} (used at $\alpha=0.99$): every 150 iterations a freshly warm-started stopper is
+  trained briefly and replaces the current one if it attacks the hedger more strongly.
+\end{itemize}
+
+\paragraph{Baselines.} (i) The \emph{Longstaff--Schwartz} rule: continuation values regressed on a cubic
+polynomial in $S/K-1$ over in-the-money paths, fitted on $2^{18}$ paths and priced on an independent set of
+$2^{18}$ paths. (ii) A \emph{CRR} binomial tree at $\lambda=0$ (American and Bermudan-on-grid). (iii)
+Fixed-rule hedgers trained against the Longstaff--Schwartz rule and against holding to maturity, whose
+CVaR under the assumed rule estimates $p(\tau_0)$.
+
+\section{Evaluation protocol}\label{sec:eval}
+
+\begin{itemize}[leftmargin=*]
+\item All reported numbers are computed on a fixed held-out test set of $2^{18}$ paths, never on training
+  batches.
+\item Standard errors of $\CVaR_\alpha$ use the influence function
+  $\psi(x)=\VaR_\alpha+(x-\VaR_\alpha)^+/(1-\alpha)$; differences between hedges or rules are computed
+  paired on the same paths.
+\item \emph{Exploitability:} each frozen hedger is attacked by a freshly initialised stopper (2000 steps)
+  and by simple rules (never early, Longstaff--Schwartz, running-loss threshold, illiquidity threshold,
+  post-decline). The gap to the co-trained adversary measures how far the holder is from a best response.
+\item \emph{Validation:} at $\alpha=0$ the method must recover the Longstaff--Schwartz and CRR prices
+  (Proposition~\ref{prop:rn}); decisions must be unchanged when future shocks are permuted.
+\item \emph{Sanity checks:} an option with zero payoff prices to $0$; the sample mean of
+  $\St_{n+1}-\St_n$ is zero within standard error, including conditionally on all policy inputs; prices
+  across strikes satisfy Theorem~\ref{thm:strikes}.
+\end{itemize}
+
+\section{Martingale-duality certificate}\label{sec:dual}
+
+For a fixed hedge $\delta$, the trained adversary yields a lower estimate of $W(\delta)$. An upper bound
+follows from martingale duality (Rogers 2002; Haugh and Kogan 2004).
+
+\begin{theorem}[Dual upper bound]\label{thm:dual}
+Fix $\delta\in\D$. For each $c\in\mathbb R$ let $M^c$ be an $(\F_n)$-martingale with $M^c_0=0$ and integrable
+increments. Then
+\[
+W(\delta)\le D(\delta)=\inf_{c\in\mathbb R}\Big\{c+\frac{1}{1-\alpha}\,
+\E\Big[\max_{1\le n\le N}\big((L_n(\delta)-c)^+-M^c_n\big)\Big]\Big\}.
+\]
+\end{theorem}
+\begin{proof}
+By~\eqref{eq:ru}, $W(\delta)=\sup_\tau\min_c F(\tau,c)$ with $F(\tau,c)=c+\E[(L_\tau-c)^+]/(1-\alpha)$,
+and $\sup\min\le\min\sup$. For fixed $c$, optional stopping gives $\E[M^c_\tau]=0$, so
+$\E[(L_\tau-c)^+]=\E[(L_\tau-c)^+-M^c_\tau]\le\E[\max_n((L_n-c)^+-M^c_n)]$ for every $\tau\in\T$.
+\end{proof}
+
+Hence, for each hedge, $\CVaR_\alpha(L_{\hat\tau}(\delta))\le W(\delta)\le D(\delta)$, where $\hat\tau$ is
+the trained adversary. Martingales are built from shocks with known zero conditional mean, e.g.\
+$\Delta M^c_{n+1}=\sum_k\varphi_k(\F_n)\,\xi^{(k)}_{n+1}$ with
+$\xi\in\{Z,\ Z^2-1,\ N-\lambda\Delta t,\ \varepsilon,\ \varepsilon'\}$, where $\varphi$ is a network trained
+to minimise $D$; every choice gives a valid bound. The bound certifies the worst case for a given hedge
+and yields a certified upper bound $p^*\le D(\hat\delta)$; it does not bound $p^*$ from below, since $p^*$
+is an infimum over all hedges. Two sources of slack remain: the $\sup$--$\min$ exchange (CVaR is not
+time-consistent) and the inability of stock-driven martingales to offset jumps. The threshold $c$ should be
+selected on paths independent of those used to evaluate the bound.
+
+\section{Parameters}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Group & Parameter & Value \\
+\midrule
+Contract & $S_0$, $K$, $T$, $N$ & $100$, $100$, $0.5$, $50$ \\
+Market & $r$, $\sigma$, $\lambda$, $m$, $\delta_J$ & $0.03$, $0.20$, $1$, $-0.10$, $0.15$ \\
+Liquidity & $\kappa_\ell$, $\eta$, $\beta$, $h_{\mathrm{mult}}$, $\ell_{\max}$ & $20$, $1$, $15$, $2$, $10$ \\
+ & $\gamma_v$, $\zeta$, $z_{\mathrm{cap}}$, $w$ & $0.3$, $0.2$, $10$, $0.3$ \\
+Costs & $s_0$, $Y$, $\psi$, $\rho_{\max}$ & $0.0005$, $1$, $0.05$, $4$ \\
+Risk & $\alpha$ & $0,\ 0.5,\ 0.9,\ 0.95,\ 0.99$ (headline $0.9$) \\
+Training & batch, outer iterations & $2^{12}$, $1500$ (headline); $600$ (grid) \\
+ & ascent steps per descent step, learning rate & $5$, $10^{-3}$ \\
+Evaluation & test paths, exploit steps & $2^{18}$, $2000$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{References}
+\begin{itemize}[leftmargin=*,label={}]
+\item Andersen, L.\ and Broadie, M.\ (2004). Primal-dual simulation algorithm for pricing multidimensional
+  American options. \emph{Management Science} 50(9), 1222--1234.
+\item Becker, S., Cheridito, P.\ and Jentzen, A.\ (2020). Pricing and hedging American-style options with
+  deep learning. \emph{Journal of Risk and Financial Management} 13(7), 158.
+\item Buehler, H., Gonon, L., Teichmann, J.\ and Wood, B.\ (2019). Deep hedging. \emph{Quantitative
+  Finance} 19(8), 1271--1291.
+\item Haugh, M.\ and Kogan, L.\ (2004). Pricing American options: a duality approach. \emph{Operations
+  Research} 52(2), 258--270.
+\item Longstaff, F.\ and Schwartz, E.\ (2001). Valuing American options by simulation: a simple
+  least-squares approach. \emph{Review of Financial Studies} 14(1), 113--147.
+\item Reppen, A.\,M., Soner, H.\,M.\ and Tissot-Daguette, V.\ (2023). Neural optimal stopping boundary.
+  arXiv:2205.04595.
+\item Roch, A.\,F.\ (2022). Hedging of American options in illiquid markets with price impacts.
+  \emph{International Journal of Theoretical and Applied Finance}.
+\item Rockafellar, R.\,T.\ and Uryasev, S.\ (2000). Optimization of conditional value-at-risk.
+  \emph{Journal of Risk} 2(3), 21--41.
+\item Rogers, L.\,C.\,G.\ (2002). Monte Carlo valuation of American options. \emph{Mathematical Finance}
+  12(3), 271--286.
+\end{itemize}
+
+\end{document}
