@@ -1,8 +1,27 @@
-# Task brief: certified upper bounds for the seller's worst-case price (martingale duality)
+# Part 2 task brief: certified upper bounds for the seller's worst-case price (martingale duality)
 
 This brief is self-contained: it is written for a new session that has not seen the earlier discussion.
 Read it fully, then read `README.md`, `results/RESULTS.md`, `sim.py`, `losses.py` and `config.yaml` before
 writing code.
+
+## 0. Where this sits: Part 1 and Part 2
+
+The project is split into two parts.
+
+- **Part 1 (the 8-week Track 3 deliverable, poster or short paper):** worst-case exercise pricing under
+  jump and volume risk. Volume caps on the hedge, the supervisor's recurrent hedger/stopper, multi-seed
+  robustness, a liquidity-calibration sweep, the exact underpricing at each alpha (LSM-trained hedgers on
+  the alpha grid) and a change of measure. Part 1 does **not** include the certificate below; its headline
+  numbers are reported as lower estimates of the worst case, with the attacker-strength caveat.
+- **Part 2 (this brief, about 2-3 weeks after Part 1, towards the arXiv version):** certify Part 1's
+  numbers with martingale-duality upper bounds, and add the entropic risk measure as a robustness check
+  that admits exact duality (section 3.3).
+
+**Prerequisites from Part 1:** the final frozen hedges for each reported setting (including volume caps
+and recurrent networks if Part 1 adopted them) and their multi-seed checkpoints. Part 2 code must work for
+whichever hedge architecture Part 1 ends with (feed-forward or recurrent): it only needs the per-path
+losses L_n and the state features. If Part 1 is not finished, develop and validate Part 2 on the existing
+MVP checkpoints listed in section 4.3, and re-run on the final hedges later.
 
 ## 1. Project context
 
@@ -113,6 +132,22 @@ report that gap honestly; do not claim tightness.
 
 Note: for alpha = 0 this collapses to the classical dual (set c very negative, (L - c)^+ = L - c).
 
+### 3.3 Entropic risk measure (robustness check with exact duality)
+
+With rho_gamma(X) = (1/gamma) log E[exp(gamma X)], the worst case over exercise rules is
+
+```
+sup_tau rho_gamma(L_tau) = (1/gamma) log sup_tau E[ exp(gamma L_tau) ]
+```
+
+because log is increasing. The inner problem is a classical optimal stopping problem with payoff
+exp(gamma L_n), so weak and strong duality (section 3.1) apply directly, with no sup/min swap gap.
+Part 2 adds: (a) an entropic training loss option (log-sum-exp in place of the top-k CVaR loss, behind a
+config switch), (b) the underpricing comparison under the entropic measure for a few gamma values chosen
+so the prices span roughly the alpha = 0.5-0.95 range, and (c) the dual bound for it. Compute exp(gamma L)
+in log space to avoid overflow. This also makes the comparison with Roch (2022), who uses exponential
+utility, direct.
+
 ## 4. Implementation plan
 
 ### 4.1 Expose the driving shocks (`sim.py`)
@@ -185,9 +220,9 @@ Check: the discounted stock increment itself, delta*(S~_{n+1} - S~_n), is one ad
   standard errors on every reported number, results computed on held-out paths.
 - Environment note: in the cloud sandbox `pip install torch` works from PyPI; the pytorch.org wheel index
   is blocked. numpy is required.
-- Budget: about 1.5-2 weeks for one person; it is one part of an 8-week plan that also adds volume caps
-  (hard participation limits on |delta_n - delta_{n-1}|), a recurrent hedger/stopper supplied by the
-  supervisor, multi-seed robustness and a change of measure.
+- Budget: about 2-3 weeks for one person (1.5-2 weeks for the CVaR certificate, about 1 week for the
+  entropic check). Part 1 (8 weeks) covers volume caps, the supervisor's recurrent hedger/stopper,
+  multi-seed robustness and a change of measure; Part 2 starts from its final hedges.
 
 ## 6. Key references
 
