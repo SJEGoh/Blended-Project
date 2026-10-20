@@ -1,0 +1,2 @@
+== val_lam0_none: exercise cost = none, S0 = 100, lam = 0, m = -0.1, delta = 0.15, sigma = 0.2
+  price in [5.0197 ± 0.0172, 5.0432 ± 0.0009] (width 0.0235); European 4.9087; early premium +0.1111; early exercise 0.388; max |z| 2.43; 11.6 min

@@ -1,0 +1,8 @@
+v1_nohedge_lam0|--ckpt none --alpha 0 --set market.lam=0
+v2_nohedge_lam1|--ckpt none --alpha 0 --set market.lam=1.0
+v3_gda_frictionless|--ckpt checkpoints/gda_lam1_a0p9_s1234_heuristic_reduced.pt --alpha 0.9
+v3_gda_liqbase|--ckpt checkpoints/gda_lam1_a0p9_s1234_heuristic_liqbase_uwcash_reduced.pt --alpha 0.9
+v3_gda_frictionless_w64|--ckpt checkpoints/gda_lam1_a0p9_s1234_heuristic_reduced.pt --alpha 0.9 --c-grid 10.823 --hidden 64 --fit-steps-first 800 --fit-steps-next 400
+v3_gda_liqbase_w64|--ckpt checkpoints/gda_lam1_a0p9_s1234_heuristic_liqbase_uwcash_reduced.pt --alpha 0.9 --c-grid 12.031 --hidden 64 --fit-steps-first 800 --fit-steps-next 400
+v4_lsm_frictionless|--ckpt checkpoints/fixed-lsm_lam1_a0p9_s1234_heuristic_reduced.pt --alpha 0.9
+v4_lsm_liqbase|--ckpt checkpoints/fixed-lsm_lam1_a0p9_s1234_heuristic_liqbase_uwcash_reduced.pt --alpha 0.9

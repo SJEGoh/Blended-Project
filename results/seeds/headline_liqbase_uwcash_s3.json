@@ -1,0 +1,282 @@
+{
+ "lam": 1.0,
+ "alpha": 0.9,
+ "c": 0.0,
+ "unwind": "cash",
+ "suffix": "_liqbase_uwcash_s3",
+ "liquidity": {
+  "enabled": true,
+  "name": "base",
+  "cost_scale": 1.0,
+  "s0": 0.0005,
+  "Y": 1.0,
+  "psi": 0.05,
+  "kappa": 20.0,
+  "eta": 1.0,
+  "beta_down": 15.0,
+  "h_mult": 2.0,
+  "gamma_v": 0.3,
+  "zeta": 0.2,
+  "ewma_w": 0.3,
+  "zcap": 10.0,
+  "ell_max": 10.0,
+  "sig_ratio_max": 4.0,
+  "sigma_ref": 0.2,
+  "seed_offset": 7777
+ },
+ "tag": "reduced",
+ "batch_log2": 12,
+ "outer_iters": 1500,
+ "hedgers": [
+  {
+   "source": "gda",
+   "label": "adversarial (GDA)",
+   "trained_against": "own adversary (GDA stopper)",
+   "trained_cvar": 15.1251224736096,
+   "trained_se": 0.027312808675012297,
+   "evals": {
+    "own adversary (GDA stopper)": {
+     "cvar": 15.1251224736096,
+     "se": 0.027312808675012297,
+     "mean_ex_time": 0.48484603881835936,
+     "frac_early": 0.059398651123046875
+    },
+    "fresh adversary": {
+     "cvar": 15.027199113857831,
+     "se": 0.02720076634863306,
+     "mean_ex_time": 0.47790611267089844,
+     "frac_early": 0.10091400146484375
+    },
+    "never early (tau = T)": {
+     "cvar": 14.747161039613982,
+     "se": 0.0289473880313424,
+     "mean_ex_time": 0.5,
+     "frac_early": 0.0
+    },
+    "LSM rule": {
+     "cvar": 14.718131449712317,
+     "se": 0.02612828532293872,
+     "mean_ex_time": 0.4341167449951172,
+     "frac_early": 0.3360595703125
+    },
+    "P&L threshold (validation-fitted)": {
+     "cvar": 14.895116166160827,
+     "se": 0.02644516979698642,
+     "mean_ex_time": 0.48608882904052736,
+     "frac_early": 0.05762481689453125
+    },
+    "illiquidity threshold (validation-fitted)": {
+     "cvar": 14.551487610355125,
+     "se": 0.024924678272892645,
+     "mean_ex_time": 0.46795475006103515,
+     "frac_early": 0.12523651123046875
+    },
+    "post-decline (validation-fitted)": {
+     "cvar": 14.81015935759951,
+     "se": 0.026728252823943137,
+     "mean_ex_time": 0.4886563110351563,
+     "frac_early": 0.0448150634765625
+    }
+   },
+   "worst_attack": "own adversary (GDA stopper)",
+   "worst_cvar": 15.1251224736096,
+   "worst_se": 0.027312808675012297,
+   "rise": 0.0,
+   "rise_se": 0.0,
+   "rel_rise": 0.0,
+   "train_minutes": 79.1
+  },
+  {
+   "source": "fixed-lsm",
+   "label": "trained vs LSM rule",
+   "trained_against": "LSM rule",
+   "trained_cvar": 14.637962225005074,
+   "trained_se": 0.02608107671073356,
+   "evals": {
+    "fresh adversary": {
+     "cvar": 15.312442495057585,
+     "se": 0.02737745200750498,
+     "mean_ex_time": 0.48167186737060547,
+     "frac_early": 0.07915115356445312
+    },
+    "never early (tau = T)": {
+     "cvar": 14.514797521915323,
+     "se": 0.028270279161561412,
+     "mean_ex_time": 0.5,
+     "frac_early": 0.0
+    },
+    "LSM rule": {
+     "cvar": 14.637962225005074,
+     "se": 0.02608107671073356,
+     "mean_ex_time": 0.4341167449951172,
+     "frac_early": 0.3360595703125
+    },
+    "P&L threshold (validation-fitted)": {
+     "cvar": 14.969532769730863,
+     "se": 0.026634724461292832,
+     "mean_ex_time": 0.4843513107299805,
+     "frac_early": 0.06353378295898438
+    },
+    "illiquidity threshold (validation-fitted)": {
+     "cvar": 14.552627455867613,
+     "se": 0.02488993813031401,
+     "mean_ex_time": 0.46795475006103515,
+     "frac_early": 0.12523651123046875
+    },
+    "post-decline (validation-fitted)": {
+     "cvar": 14.811004314207972,
+     "se": 0.02691567110352292,
+     "mean_ex_time": 0.4886563110351563,
+     "frac_early": 0.0448150634765625
+    }
+   },
+   "worst_attack": "fresh adversary",
+   "worst_cvar": 15.312442495057585,
+   "worst_se": 0.02737745200750498,
+   "rise": 0.674480270052511,
+   "rise_se": 0.00999067874639315,
+   "rel_rise": 0.04607747032577666,
+   "train_minutes": 6.5,
+   "vs_adv_under_fresh": 0.2852433811997539,
+   "vs_adv_under_fresh_se": 0.006685222795379531
+  },
+  {
+   "source": "fixed-maturity",
+   "label": "trained vs hold-to-maturity",
+   "trained_against": "never early (tau = T)",
+   "trained_cvar": 14.23438100234575,
+   "trained_se": 0.028194734629271703,
+   "evals": {
+    "fresh adversary": {
+     "cvar": 15.919742278026847,
+     "se": 0.026399202969252876,
+     "mean_ex_time": 0.47459915161132815,
+     "frac_early": 0.10016250610351562
+    },
+    "never early (tau = T)": {
+     "cvar": 14.23438100234575,
+     "se": 0.028194734629271703,
+     "mean_ex_time": 0.5,
+     "frac_early": 0.0
+    },
+    "LSM rule": {
+     "cvar": 14.807461595035068,
+     "se": 0.0269415099134907,
+     "mean_ex_time": 0.4341167449951172,
+     "frac_early": 0.3360595703125
+    },
+    "P&L threshold (validation-fitted)": {
+     "cvar": 15.306544172857045,
+     "se": 0.023436246080791152,
+     "mean_ex_time": 0.4748729705810547,
+     "frac_early": 0.09314346313476562
+    },
+    "illiquidity threshold (validation-fitted)": {
+     "cvar": 14.60862510742269,
+     "se": 0.025768264927495198,
+     "mean_ex_time": 0.46795475006103515,
+     "frac_early": 0.12523651123046875
+    },
+    "post-decline (validation-fitted)": {
+     "cvar": 14.749390556528985,
+     "se": 0.026905997963003626,
+     "mean_ex_time": 0.4824355697631836,
+     "frac_early": 0.068878173828125
+    }
+   },
+   "worst_attack": "fresh adversary",
+   "worst_cvar": 15.919742278026847,
+   "worst_se": 0.026399202969252876,
+   "rise": 1.6853612756810978,
+   "rise_se": 0.012072764749139105,
+   "rel_rise": 0.11840074221726672,
+   "train_minutes": 6.2,
+   "vs_adv_under_fresh": 0.892543164169016,
+   "vs_adv_under_fresh_se": 0.009328427765836403
+  }
+ ],
+ "no_hedge": {
+  "never early (tau = T)": 30.40186466081306,
+  "LSM rule": 25.453527195603996,
+  "P&L threshold (validation-fitted)": 30.597549747272797
+ },
+ "hedge_by_liquidity": {
+  "edges": [
+   0.0,
+   1.25,
+   2.0,
+   4.0,
+   8.0,
+   "inf"
+  ],
+  "by_hedger": {
+   "adversarial (GDA)": [
+    {
+     "n": 1370029,
+     "mean_delta": -0.9213221073150635
+    },
+    {
+     "n": 414587,
+     "mean_delta": -0.8762742877006531
+    },
+    {
+     "n": 149677,
+     "mean_delta": -0.6647274494171143
+    },
+    {
+     "n": 77241,
+     "mean_delta": -0.48248621821403503
+    },
+    {
+     "n": 36006,
+     "mean_delta": -0.4141669273376465
+    }
+   ],
+   "trained vs LSM rule": [
+    {
+     "n": 1370029,
+     "mean_delta": -0.808129608631134
+    },
+    {
+     "n": 414587,
+     "mean_delta": -0.7798991799354553
+    },
+    {
+     "n": 149677,
+     "mean_delta": -0.652509331703186
+    },
+    {
+     "n": 77241,
+     "mean_delta": -0.5365334749221802
+    },
+    {
+     "n": 36006,
+     "mean_delta": -0.5139591693878174
+    }
+   ],
+   "trained vs hold-to-maturity": [
+    {
+     "n": 1370029,
+     "mean_delta": -0.8799059391021729
+    },
+    {
+     "n": 414587,
+     "mean_delta": -0.8612513542175293
+    },
+    {
+     "n": 149677,
+     "mean_delta": -0.7500196099281311
+    },
+    {
+     "n": 77241,
+     "mean_delta": -0.6658686399459839
+    },
+    {
+     "n": 36006,
+     "mean_delta": -0.6335781216621399
+    }
+   ]
+  }
+ },
+ "seed": 3
+}

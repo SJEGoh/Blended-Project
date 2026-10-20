@@ -1,0 +1,174 @@
+  <article class="mathpage" id="math" hidden aria-label="The math, step by step">
+    <nav class="toc" aria-label="Sections">
+      <div class="label">The math, step by step</div>
+      <ol>
+        <li><a href="#m-market">The market</a></li>
+        <li><a href="#m-liquidity">Liquidity</a></li>
+        <li><a href="#m-cost">The cost of trading</a></li>
+        <li><a href="#m-loss">The seller's hedged loss</a></li>
+        <li><a href="#m-cvar">Measuring the tail</a></li>
+        <li><a href="#m-game">The game</a></li>
+        <li><a href="#m-saddle">Why a saddle point exists</a></li>
+        <li><a href="#m-gda">Learning it</a></li>
+        <li><a href="#m-dual">Certifying the worst case</a></li>
+        <li><a href="#m-price">The holder's own problem</a></li>
+        <li><a href="#m-bracket">Bracketing the price</a></li>
+        <li><a href="#m-numbers">What the numbers say</a></li>
+      </ol>
+    </nav>
+    <div class="prose">
+      <header class="intro">
+        <h2>The math, step by step</h2>
+        <p>The dashboard runs one model: a put option on a stock that can jump, in a market whose liquidity dries up after crashes. Two problems sit on top of it. The seller wants a hedge whose worst-case tail loss is as small as possible, whatever the holder does. The holder wants to exercise at the best time for themselves. This page builds both from the ground up, with the numbers the dashboard shows.</p>
+        <p class="aside">Notation. Exercise dates are \(t_n = nT/N\) for \(n = 0,\dots,N\), with \(N = 50\) and \(T = 0.5\) years, so one step is about 2.5 trading days. A tilde means discounted to today: \(\tilde x_n = e^{-r t_n} x_n\). The contract is a put with strike \(K = 100\) on a stock starting at \(S_0 = 100\).</p>
+      </header>
+
+      <section id="m-market">
+        <div class="sec-head"><span class="step-no">1</span><h3>The market: a stock that jumps</h3></div>
+        <p>The stock follows Merton's jump-diffusion. Over one step its log-price moves by a normal shock plus a random number of jumps, each normally distributed in log terms:</p>
+        <div class="eq">\[ \log S_{n+1} = \log S_n + \Big(r - \lambda\kappa - \tfrac12\sigma^2\Big)\Delta t + \sigma\sqrt{\Delta t}\,Z_n + \sum_{j=1}^{N_n} Y_j \]
+        \[ Z_n \sim \mathcal N(0,1), \qquad N_n \sim \text{Poisson}(\lambda\,\Delta t), \qquad Y_j \sim \mathcal N(m, \delta^2), \qquad \kappa = e^{m + \delta^2/2} - 1. \]</div>
+        <p>The drift is the risk-free rate, and the term \(-\lambda\kappa\) removes the jumps' average effect, so the discounted stock price \(\tilde S_n\) is a martingale. Jump risk is left unpriced, as in Merton (1976). With \(\sigma = 20\%\), \(\lambda = 1\), \(m = -0.10\) and \(\delta = 0.15\), the stock jumps about once a year, and an average jump takes \(\kappa \approx -8.5\%\) off the price.</p>
+        <div class="refs"><span class="code">sim.py · simulate</span><button class="see" data-goto="game">See it: ▼ markers on the market chart</button></div>
+      </section>
+
+      <section id="m-liquidity">
+        <div class="sec-head"><span class="step-no">2</span><h3>Liquidity: three numbers anyone can observe</h3></div>
+        <p>Each date carries a liquidity state: an illiquidity factor \(\ell_n = e^{x_n}\) (1 is normal), relative trading volume \(v_n\), and a running volatility estimate \(\hat\sigma_n\). With \(r_n = \log S_{n+1} - \log S_n\) the step's return and \(h = 2\sigma\sqrt{\Delta t}\) a threshold of two standard deviations:</p>
+        <div class="eq">\[ x_{n+1} = \min\Big( x_n - \kappa_\ell\, x_n \Delta t + \eta\sqrt{\Delta t}\,\varepsilon_n + \beta\,(-r_n - h)^+ ,\ \log \ell_{\max} \Big) \]
+        \[ \log v_{n+1} = \gamma\Big(\min\big(|r_n|/\sigma\sqrt{\Delta t},\ \bar z\big) - \sqrt{2/\pi}\Big) + \zeta\,\varepsilon'_n - \tfrac12\zeta^2, \qquad \hat\sigma^2_{n+1} = (1-w)\,\hat\sigma^2_n + w\, r_n^2/\Delta t. \]</div>
+        <p>Read the first line term by term. Illiquidity decays back to normal at rate \(\kappa_\ell = 20\) per year, a half-life of \(\ln 2/\kappa_\ell \approx 8.7\) trading days. It wobbles with small noise. It <b>jumps</b> when the stock falls by more than the threshold: the \((-r_n - h)^+\) term is zero in calm markets and large after a crash, with \(\beta = 15\). It is capped at 10 times normal. Volume rises with the size of the move, and \(\hat\sigma\) is an exponentially weighted volatility estimate. All three are known at \(t_n\), so the hedge and the exercise rules may use them.</p>
+        <div class="refs"><span class="code">sim.py · liquidity_state</span><button class="see" data-goto="game">See it: the violet strip under the market chart</button></div>
+      </section>
+
+      <section id="m-cost">
+        <div class="sec-head"><span class="step-no">3</span><h3>The cost of trading</h3></div>
+        <p>Trading \(q\) shares at \(t_n\) pays a half-spread and a square-root market impact, both scaled up by illiquidity:</p>
+        <div class="eq">\[ c_n(q) = \Big[\, s_0\,\ell_n\,\rho_n\, q \;+\; Y\,\ell_n\,\frac{\rho_n\,\sigma}{\sqrt{252}}\sqrt{\frac{\psi}{v_n}}\; q^{3/2} \Big]\, \tilde S_n, \qquad \rho_n = \min\!\big(\hat\sigma_n/\sigma,\ 4\big). \]</div>
+        <p>The spread \(s_0 = 5\) basis points widens with volatility. The impact term is the standard square-root law with \(Y = 1\), where \(\psi\) is the position size relative to a normal day's volume (5% here). In a calm market, one share costs about \(0.05\% + 0.2/\sqrt{252}\times\sqrt{0.05} \approx 0.33\%\) of the price. After a crash, \(\ell_n\) and \(\rho_n\) multiply that many times over. The cost is convex in \(q\), so splitting a large trade is cheaper than doing it at once.</p>
+        <div class="refs"><span class="code">losses.py · liquidity_cost</span><button class="see" data-goto="game">See it: "Cost per share" on the market card</button></div>
+      </section>
+
+      <section id="m-loss">
+        <div class="sec-head"><span class="step-no">4</span><h3>The seller's hedged loss</h3></div>
+        <p>The seller sells the put and holds \(\delta_n\) shares over \([t_n, t_{n+1})\), chosen by a neural network from what is known at \(t_n\):</p>
+        <div class="eq">\[ \delta_n = H_\theta\Big(\tfrac{t_n}{T},\ \tfrac{\log(S_n/K)}{\sigma\sqrt T},\ \delta_{n-1},\ \log\ell_n,\ \log v_n,\ \log\tfrac{\hat\sigma_n}{\sigma}\Big). \]</div>
+        <p>If the holder exercises at \(t_n\), the seller pays the put's payoff, has the hedge's gains and has paid its trading costs, plus the cost of closing the position:</p>
+        <div class="eq">\[ L_n = \underbrace{e^{-rt_n}(K - S_n)^+}_{\text{payoff owed}} \;-\; \underbrace{\sum_{k\lt n}\delta_k\big(\tilde S_{k+1} - \tilde S_k\big)}_{\text{hedge gains } \tilde G_n} \;+\; \underbrace{\sum_{k\lt n} c_k\big(|\delta_k - \delta_{k-1}|\big)}_{\text{trading costs } C_n} \;+\; \underbrace{c_n\big(|\delta_{n-1}|\big)}_{\text{closing the hedge}}. \]</div>
+        <p>\(L_n\) is measured before the premium the seller collected, so it is also the premium the seller would need to break even on that path.</p>
+        <div class="refs"><span class="code">losses.py · hedge_rollout</span><span class="code">models.py · Hedger</span><button class="see" data-goto="game">See it: "Owes if exercised now"</button></div>
+      </section>
+
+      <section id="m-cvar">
+        <div class="sec-head"><span class="step-no">5</span><h3>Measuring the tail: CVaR</h3></div>
+        <p>A seller cares about bad outcomes, not the average one. Conditional value-at-risk at level \(\alpha\) is the average of the worst \(1 - \alpha\) of outcomes. Rockafellar and Uryasev (2000) showed it can be written as a minimum:</p>
+        <div class="eq">\[ \mathrm{CVaR}_\alpha(X) \;=\; \min_{c\in\mathbb R}\Big\{\, c + \frac{\mathbb E\big[(X - c)^+\big]}{1 - \alpha} \Big\}, \qquad \alpha = 0.9. \]</div>
+        <p>The minimising \(c\) is the 90% quantile of \(X\) (the value-at-risk), and CVaR is the mean of everything beyond it. At \(\alpha = 0\) it is just the expected loss. CVaR is convex, which is what makes the game below well behaved.</p>
+        <div class="refs"><button class="see" data-goto="game">See it: the orange bars in the Score histogram</button></div>
+      </section>
+
+      <section id="m-game">
+        <div class="sec-head"><span class="step-no">6</span><h3>The game: seller against the worst exercise time</h3></div>
+        <p>The holder chooses when to exercise: a stopping time \(\tau\), meaning the decision at \(t_n\) may use only what is known at \(t_n\). The seller does not control it and does not know the holder's rule, so the seller plans against the worst one:</p>
+        <div class="eq">\[ p^\ast \;=\; \inf_{\delta}\ \sup_{\tau}\ \mathrm{CVaR}_\alpha\big(L_\tau^{\delta}\big). \]</div>
+        <p>This is a zero-sum game. The seller minimises, and an attacker picks the exercise time to maximise the same number. The attacker is a stress test for the seller, not a model of how real holders behave; the real holder's problem is step 10. Step 7 proves that, once the holder may randomise, the order of moves does not matter: \(\inf\sup = \sup\inf\), and the game has a saddle point.</p>
+        <p>The payoff matrix tests this with the strategies that exist. The GDA hedge against its own attacker gives <b id="f-saddle">15.12</b>. That is the largest number in its row, so no other holder strategy hurts that hedge more. It is also the smallest in its column, so no other hedge does better against that attacker. Neither side gains by switching.</p>
+        <div class="refs"><button class="see" data-goto="game">See it: the payoff matrix and its ★</button></div>
+      </section>
+
+      <section id="m-saddle">
+        <div class="sec-head"><span class="step-no">7</span><h3>Why the game has a saddle point</h3></div>
+        <p>A saddle point is a pair of strategies, one per player, from which neither player gains by moving alone. Not every game has one: in matching pennies, whoever has to commit first loses. This section proves that the seller-versus-attacker game does have one, once the holder is allowed to randomise.</p>
+
+        <h4>The holder must be allowed to flip a coin</h4>
+        <p>A mixed strategy for the holder is a rule \(p = (p_1,\dots,p_N)\), where \(p_n\) is the chance of exercising at \(t_n\) given the path so far. Each \(p_n\) may depend only on what is known at \(t_n\), each \(p_n \ge 0\), and \(\sum_n p_n = 1\) on every path. A pure stopping rule is the special case where every \(p_n\) is 0 or 1. Mixing matters because CVaR is not linear in the loss distribution. Two rules with the same CVaR can, mixed, produce a heavier tail than either:</p>
+        <div class="eq tbl"><table class="mtab"><thead><tr><th>Exercise rule</th><th>Seller's loss</th><th>CVaR 90%</th></tr></thead><tbody>
+          <tr><td>Rule A</td><td>20 with probability 5%, otherwise 0</td><td>10</td></tr>
+          <tr><td>Rule B</td><td>10 always</td><td>10</td></tr>
+          <tr><td>Flip a fair coin, then follow A or B</td><td>20 w.p. 2.5%, 10 w.p. 50%, 0 w.p. 47.5%</td><td><b>12.5</b></td></tr>
+        </tbody></table></div>
+        <p>So the attacker can gain by randomising, and the honest version of the game lets it. The seller's objective against a mixed rule follows from the CVaR formula in step 5, applied to the mixed loss distribution:</p>
+        <div class="eq">\[ \Phi(\delta, p) \;=\; \min_{c\in\mathbb R}\ \Big\{\, c + \frac{1}{1-\alpha}\, \mathbb E\Big[\, \sum_{n=1}^{N} p_n \big(L_n^{\delta} - c\big)^+ \Big] \Big\}. \]</div>
+
+        <div class="thm">
+          <div class="thm-label">Theorem</div>
+          <p>Suppose the market has finitely many outcomes at each step, as any simulation tree does, and positions are capped, \(|\delta_n| \le D\). Write \(\mathcal D\) for the seller's hedges and \(\mathcal P\) for the holder's mixed rules. Then there are \(\delta^\ast \in \mathcal D\) and \(p^\ast \in \mathcal P\) with</p>
+          <div class="eq inner">\[ \Phi(\delta^\ast, p) \;\le\; \Phi(\delta^\ast, p^\ast) \;\le\; \Phi(\delta, p^\ast) \qquad \text{for every } \delta \in \mathcal D,\ p \in \mathcal P, \]
+          \[ \text{and}\qquad V := \Phi(\delta^\ast, p^\ast) \;=\; \min_{\delta}\,\max_{p}\ \Phi(\delta, p) \;=\; \max_{p}\,\min_{\delta}\ \Phi(\delta, p). \]</div>
+        </div>
+
+        <div class="thm proof">
+          <div class="thm-label">Proof</div>
+          <ol class="steps">
+            <li><b>Both strategy sets are compact and convex.</b> With finitely many outcomes per step there are finitely many nodes in the tree, so a hedge and a mixed rule are just vectors of numbers, one per node. \(\mathcal D\) is a box, so it is compact and convex. \(\mathcal P\) is cut out by finitely many linear equalities and inequalities and is bounded, so it is a compact convex polytope. A convex combination of two mixed rules is again a mixed rule: flip a coin to choose between them.</li>
+            <li><b>\(\Phi\) is concave in the holder's rule.</b> Fix \(\delta\) and \(c\). The expression inside the braces is an expectation of a sum weighted by the \(p_n\), so it is linear in \(p\). \(\Phi(\delta, \cdot)\) is the minimum over \(c\) of these linear functions, and a minimum of linear functions is concave. It is also continuous, since \(c\) can be restricted to a bounded interval that contains every possible loss.</li>
+            <li><b>\(\Phi\) is convex in the seller's hedge.</b> The hedge gains \(\sum_k \delta_k(\tilde S_{k+1} - \tilde S_k)\) are linear in \(\delta\). Each trading cost \(c_k(|\delta_k - \delta_{k-1}|)\) is convex: \(q \mapsto a q + b q^{3/2}\) is convex and increasing for \(q \ge 0\), and \(|\cdot|\) is convex. So each loss \(L_n^\delta\) is convex in \(\delta\). Since \(x \mapsto (x - c)^+\) is convex and increasing, \((L_n^\delta - c)^+\) is jointly convex in \((\delta, c)\). Weighting by \(p_n \ge 0\), taking expectations and adding \(c\) keep joint convexity. Minimising a jointly convex function over \(c\) leaves a convex function of \(\delta\). It is continuous for the same reason as before.</li>
+            <li><b>Apply Sion's minimax theorem.</b> Sion (1958): if \(X\) and \(Y\) are compact convex sets and \(f\) is lower semicontinuous and quasi-convex in \(x\), and upper semicontinuous and quasi-concave in \(y\), then \(\min_x \max_y f = \max_y \min_x f\). Steps 1–3 give exactly this with \(X = \mathcal D\), \(Y = \mathcal P\), \(f = \Phi\). Call the common value \(V\).</li>
+            <li><b>The optimisers form a saddle point.</b> By compactness and continuity, some \(\delta^\ast\) attains the outer minimum on the left and some \(p^\ast\) attains the outer maximum on the right. Then, for every \(\delta\) and \(p\),
+              <div class="eq inner">\[ \Phi(\delta^\ast, p) \;\le\; \max_{p'} \Phi(\delta^\ast, p') \;=\; V \;=\; \min_{\delta'} \Phi(\delta', p^\ast) \;\le\; \Phi(\delta, p^\ast). \]</div>
+              Setting \(p = p^\ast\) on the left and \(\delta = \delta^\ast\) on the right gives \(\Phi(\delta^\ast, p^\ast) \le V \le \Phi(\delta^\ast, p^\ast)\), so \(\Phi(\delta^\ast, p^\ast) = V\) and the two inequalities in the theorem hold. <span class="qed">∎</span></li>
+          </ol>
+        </div>
+
+        <h4>What this means for the dashboard</h4>
+        <ul class="takeaways">
+          <li><b>The game has a value, and every hedge's certificate bounds it.</b> \(V\) is the smallest worst case any hedge can achieve, so \(V \le W(h)\) for every hedge \(h\). The duality bound in step 9 also holds against mixed rules: for each fixed \(c\) the bound is linear in \(p\), so mixing cannot beat the best pure rule there. The GDA hedge's certificate therefore gives \(V \le\) <span id="f-dg3">15.52</span>.</li>
+          <li><b>The ★ in the matrix is evidence, not the proof.</b> The GDA hedge against its own attacker is a saddle among the 25 pure matchups shown. That is what the theorem predicts the trained pair should approximate, but nothing guarantees that pair is the true \((\delta^\ast, p^\ast)\).</li>
+          <li><b>Training uses a smoothed rule, not a coin flip.</b> The soft rule in step 8 averages losses within each path, \(X = \sum_n p_n L_n\), so that gradients exist. That is a different object from the mixed rule in the proof. As the temperature falls, both collapse to the same hard exercise rule.</li>
+          <li><b>Beyond a finite tree.</b> With a continuum of outcomes, the same five steps go through once compactness is restored. Randomised stopping times are compact in a suitable weak sense (Baxter and Chacon, 1977); the hedge side needs a similar argument.</li>
+        </ul>
+        <div class="refs"><button class="see" data-goto="game">See it: the payoff matrix</button></div>
+      </section>
+
+      <section id="m-gda">
+        <div class="sec-head"><span class="step-no">8</span><h3>Learning it: gradient descent–ascent</h3></div>
+        <p>A stopping rule is a yes/no decision, which has no gradient. Training softens it. The attacker network outputs a score \(z_n\) each date and exercises with probability \(f_n\). The chance of first exercising at \(t_n\) is \(p_n\), and the loss is averaged over those chances:</p>
+        <div class="eq">\[ f_n = \operatorname{sigmoid}(z_n / T_{\text{temp}}),\quad f_N = 1, \qquad p_n = f_n \prod_{k\lt n}(1 - f_k), \qquad X = \sum_{n=1}^{N} p_n L_n. \]
+        \[ J(\theta, \varphi) = \mathrm{CVaR}_\alpha(X) \quad\text{on a batch of } 2^{12} \text{ paths.} \]</div>
+        <p>Each iteration takes five gradient <i>ascent</i> steps on the attacker's weights \(\varphi\), then one gradient <i>descent</i> step on the hedge's weights \(\theta\). The temperature falls from 1 to 0.1, so the soft rule hardens into a real one. A pool of past attackers stops the seller from overfitting to the latest one. After 1,500 iterations the attacker is used as a hard rule: exercise on the first date with \(z_n \gt 0\). As a check, a brand-new attacker trained for 2,000 steps against the frozen hedge reaches 15.04, slightly below the co-trained attacker's 15.12, so training did not leave an easy attack undiscovered.</p>
+        <div class="refs"><span class="code">train.py</span><span class="code">losses.py · aggregate</span><button class="see" data-goto="game">See it: "How they learned"</button></div>
+      </section>
+
+      <section id="m-dual">
+        <div class="sec-head"><span class="step-no">9</span><h3>Certifying the worst case: duality</h3></div>
+        <p>Trained attackers might stop short of the true worst case. A dual bound covers every possible exercise rule at once. Fix a hedge, and write \(W\) for its true worst case. Swapping the order of \(\sup\) and \(\min\) can only raise the value. Then Rogers' (2002) duality bounds any optimal stopping problem from above, using any martingale \(M\) with \(M_0 = 0\):</p>
+        <div class="eq">\[ \begin{aligned} W &amp;= \sup_\tau\ \min_c \Big\{ c + \frac{\mathbb E[(L_\tau - c)^+]}{1-\alpha} \Big\} \\ &amp;\le \min_c \Big\{ c + \frac{\sup_\tau \mathbb E[(L_\tau - c)^+]}{1-\alpha} \Big\} \\ &amp;\le \min_c \Big\{ c + \frac{\mathbb E\big[\max_n \big((L_n - c)^+ - M_n\big)\big]}{1-\alpha} \Big\}. \end{aligned} \]</div>
+        <p>Any martingale gives a valid bound; a good one gives a tight bound. The best martingale comes from the value function of the stopping problem, which is fitted with small networks and simulated one step ahead (step 11 uses the same construction). The result brackets each hedge's true worst case between the worst attack found and the certified ceiling:</p>
+        <div class="eq tbl"><table class="mtab"><thead><tr><th>Hedge</th><th>Worst attack found</th><th>Certified ceiling</th></tr></thead><tbody><tr><td>GDA</td><td id="f-wg">15.12</td><td id="f-dg">15.52</td></tr><tr><td>LSM-trained</td><td id="f-wl">15.34</td><td id="f-dl">15.68</td></tr></tbody></table></div>
+        <p>The LSM-trained hedge rates its own risk at <span id="f-own">14.65</span>, assuming holders follow the textbook exercise rule. Its true worst case is at least <span id="f-wl2">15.34</span> and at most <span id="f-dl2">15.68</span>: that seller underprices their tail risk by <span id="f-pct">4.7–7.0%</span>.</p>
+        <div class="refs"><span class="code">dual.py</span><span class="code">dual_value.py</span><button class="see" data-goto="game">See it: "certified" in the matrix</button></div>
+      </section>
+
+      <section id="m-price">
+        <div class="sec-head"><span class="step-no">10</span><h3>The holder's own problem: the price</h3></div>
+        <p>The real holder ignores the seller and exercises to maximise their own value. Under the pricing measure \(Q\) the option is worth</p>
+        <div class="eq">\[ V_0 = \sup_{\tau}\ \mathbb E^{Q}\big[\, e^{-r\tau} E_\tau \big], \qquad E_n = \big(K - S_n - \kappa_n\big)^+. \]</div>
+        <p>With cash settlement the holder simply receives \(K - S_n\), so \(\kappa_n = 0\). With physical settlement the holder must deliver a share, and a holder without one buys it at \(t_n\). That costs \(\kappa_n = c_n(1)/e^{-rt_n}\), the step-3 cost of one share at that date's liquidity. Exercising right after a crash is therefore expensive, and that is when the put is deep in the money.</p>
+        <p>The seller's hedge appears nowhere here: it changes the seller's profit, not what the holder receives. The market is incomplete (jumps cannot be hedged with shares alone), so \(Q\) is a modelling choice. The model leaves jump risk unpriced, following Merton.</p>
+        <div class="refs"><span class="code">pricing.py · exercise_value</span><button class="see" data-goto="holder">See it: the Holder view</button></div>
+      </section>
+
+      <section id="m-bracket">
+        <div class="sec-head"><span class="step-no">11</span><h3>Bracketing the price</h3></div>
+        <p><b>Lower bound.</b> Any exercise rule's value is at most \(V_0\). Longstaff and Schwartz (2001) build a good rule by working backwards from maturity, fitting the value of waiting \(C_n(X_n)\) by regression; here a small network per date fitted on \(2^{16}\) paths. The rule exercises at the first date where exercising beats waiting, and its value is estimated on \(2^{18}\) fresh paths (and never reported below the European value, since never exercising early is also a rule):</p>
+        <div class="eq">\[ \hat\tau = \min\{\, n : E_n \gt 0,\ E_n \ge C_n(X_n) \,\}, \qquad \text{lower} = \mathbb E\big[\tilde E_{\hat\tau} - M_{\hat\tau}\big]. \]</div>
+        <p>Subtracting \(M_{\hat\tau}\) changes nothing on average, since a martingale stopped at a stopping time has mean zero. It does cancel much of the noise.</p>
+        <p><b>Upper bound.</b> For any martingale \(M\) with \(M_0 = 0\), Rogers (2002) and Haugh and Kogan (2004) give</p>
+        <div class="eq">\[ V_0 \;\le\; \mathbb E\Big[\max_{n}\big(\tilde E_n - M_n\big)\Big], \qquad \Delta M_k = \hat V_k(X_k) - \sum_{j=1}^{16} w_j\, \hat V_k\big(X_k^{(j)}\big), \]</div>
+        <p>where \(\hat V_k = \max(\tilde E_k, C_k)\) and the \(X_k^{(j)}\) are 16 fresh one-step draws from \(X_{k-1}\). They are sorted by jump count and paired antithetically to cut noise. The second term averages to the expected next value, so each increment averages to zero and \(M\) is an exact martingale, whatever the fitted \(\hat V\). That makes the bound valid for any fit; the fit only decides how tight it is.</p>
+        <div class="eq tbl"><table class="mtab"><thead><tr><th>Settlement</th><th>Price bracket</th><th>Check</th></tr></thead><tbody><tr><td>Cash</td><td id="f-pc">—</td><td>No jumps: [4.998, 5.043] contains the exact binomial value 5.006</td></tr><tr><td>Physical, small holder</td><td id="f-pp">—</td><td>Zero trading cost reproduces the cash price</td></tr><tr><td>Physical, large holder</td><td id="f-pl">—</td><td></td></tr></tbody></table></div>
+        <div class="refs"><span class="code">pricing.py · bracket_samples</span><button class="see" data-goto="holder">See it: the Price card</button></div>
+      </section>
+
+      <section id="m-numbers">
+        <div class="sec-head"><span class="step-no">12</span><h3>What the numbers say</h3></div>
+        <ul class="takeaways">
+          <li><b>The game has a saddle point among the trained strategies.</b> The GDA hedge against its own attacker, <span id="f-saddle2">15.12</span>, is stable for both sides. Duality certifies that no exercise rule can push that hedge above <span id="f-dg2">15.52</span>.</li>
+          <li><b>Hedging against the usual rule is not enough.</b> A hedge trained against the textbook exercise rule understates its worst case by a certified <span id="f-pct2">4.7–7.0%</span>.</li>
+          <li><b>Illiquidity costs the holder.</b> Physical settlement lowers the price by about 3% for a small holder and 10% for one trading a full day's volume.</li>
+          <li><b>Holders wait out illiquid spells.</b> Deep in the money, they exercise far more often when liquidity is normal than right after a crash. The right to choose the date carries a liquidity-timing option.</li>
+        </ul>
+        <p class="aside">References: Merton (1976), Longstaff &amp; Schwartz (2001), Rogers (2002), Haugh &amp; Kogan (2004), Andersen &amp; Broadie (2004), Rockafellar &amp; Uryasev (2000), Sion (1958).</p>
+      </section>
+    </div>
+  </article>

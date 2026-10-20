@@ -1,4 +1,20 @@
+# Python
 __pycache__/
+*.py[cod]
 .pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Node (dashboard/test_parity.mjs)
+node_modules/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Data, run output and snapshot bundles
 data/
 results/logs/stdout_*.txt
+*.tar.gz

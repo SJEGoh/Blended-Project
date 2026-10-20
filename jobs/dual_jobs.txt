@@ -1,0 +1,5 @@
+v1_nohedge_lam0|--ckpt none --alpha 0 --set market.lam=0
+v2_nohedge_lam1|--ckpt none --alpha 0 --set market.lam=1.0
+v2_gdahedge_lam1|--ckpt checkpoints/gda_lam1_a0p9_s1234_heuristic_reduced.pt --alpha 0
+v3_gda_frictionless|--ckpt checkpoints/gda_lam1_a0p9_s1234_heuristic_reduced.pt --alpha 0.9
+v3_gda_liqbase|--ckpt checkpoints/gda_lam1_a0p9_s1234_heuristic_liqbase_uwcash_reduced.pt --alpha 0.9

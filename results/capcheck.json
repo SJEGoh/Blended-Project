@@ -1,0 +1,258 @@
+{
+ "participation": 0.1,
+ "paths": 65536,
+ "rows": [
+  {
+   "hedge": "GDA (liquidity base)",
+   "ckpt": "gda_lam1_a0p9_s1234_heuristic_liqbase_uwcash_reduced.pt",
+   "alpha": 0.9,
+   "liquidity": true,
+   "binding": {
+    "psi=0.05": {
+     "q_normal": 5.04,
+     "frac_trades_over": 0.0,
+     "frac_paths_any": 0.0,
+     "frac_initial_over": 0.0,
+     "frac_later_over": 0.0
+    },
+    "psi=1": {
+     "q_normal": 0.252,
+     "frac_trades_over": 0.0200048828125,
+     "frac_paths_any": 1.0,
+     "frac_initial_over": 1.0,
+     "frac_later_over": 4.982461734693877e-06
+    }
+   },
+   "cvar": {
+    "psi=0.05, no cap": {
+     "never early": {
+      "cvar": 14.826483349338842,
+      "se": 0.06028120206583715
+     },
+     "LSM rule": {
+      "cvar": 14.77229679871304,
+      "se": 0.05456175507682748
+     },
+     "co-trained adversary": {
+      "cvar": 15.190562733070204,
+      "se": 0.05692262815042564
+     },
+     "mean_abs_position": 0.577904462814331
+    },
+    "psi=1, no cap": {
+     "never early": {
+      "cvar": 17.623317119731094,
+      "se": 0.07359129316537708
+     },
+     "LSM rule": {
+      "cvar": 17.921034686915352,
+      "se": 0.05271177539266654
+     },
+     "co-trained adversary": {
+      "cvar": 20.069700814981378,
+      "se": 0.040463783352104495
+     },
+     "mean_abs_position": 0.577904462814331
+    },
+    "psi=1, cap": {
+     "never early": {
+      "cvar": 17.697297192434732,
+      "se": 0.07461917676575476
+     },
+     "LSM rule": {
+      "cvar": 17.999018287454977,
+      "se": 0.05576604330700013
+     },
+     "co-trained adversary": {
+      "cvar": 20.11085808171635,
+      "se": 0.04260162020405993
+     },
+     "mean_abs_position": 0.5717613101005554
+    }
+   }
+  },
+  {
+   "hedge": "LSM-trained (liquidity base)",
+   "ckpt": "fixed-lsm_lam1_a0p9_s1234_heuristic_liqbase_uwcash_reduced.pt",
+   "alpha": 0.9,
+   "liquidity": true,
+   "binding": {
+    "psi=0.05": {
+     "q_normal": 5.04,
+     "frac_trades_over": 0.0,
+     "frac_paths_any": 0.0,
+     "frac_initial_over": 0.0,
+     "frac_later_over": 0.0
+    },
+    "psi=1": {
+     "q_normal": 0.252,
+     "frac_trades_over": 0.02000030517578125,
+     "frac_paths_any": 1.0,
+     "frac_initial_over": 1.0,
+     "frac_later_over": 3.114038584183673e-07
+    }
+   },
+   "cvar": {
+    "psi=0.05, no cap": {
+     "never early": {
+      "cvar": 14.59496494819378,
+      "se": 0.058659962724431185
+     },
+     "LSM rule": {
+      "cvar": 14.692424539170835,
+      "se": 0.05390844237038457
+     },
+     "mean_abs_position": 0.5553805828094482
+    },
+    "psi=1, no cap": {
+     "never early": {
+      "cvar": 16.795500733629027,
+      "se": 0.06983472899231613
+     },
+     "LSM rule": {
+      "cvar": 17.84225543621367,
+      "se": 0.05226337435398533
+     },
+     "mean_abs_position": 0.5553805828094482
+    },
+    "psi=1, cap": {
+     "never early": {
+      "cvar": 16.848904863159067,
+      "se": 0.07037353931905317
+     },
+     "LSM rule": {
+      "cvar": 17.914730536199247,
+      "se": 0.05603833244879054
+     },
+     "mean_abs_position": 0.5493173003196716
+    }
+   }
+  },
+  {
+   "hedge": "maturity-trained (liquidity base)",
+   "ckpt": "fixed-maturity_lam1_a0p9_s1234_heuristic_liqbase_uwcash_reduced.pt",
+   "alpha": 0.9,
+   "liquidity": true,
+   "binding": {
+    "psi=0.05": {
+     "q_normal": 5.04,
+     "frac_trades_over": 0.0,
+     "frac_paths_any": 0.0,
+     "frac_initial_over": 0.0,
+     "frac_later_over": 0.0
+    },
+    "psi=1": {
+     "q_normal": 0.252,
+     "frac_trades_over": 0.02000335693359375,
+     "frac_paths_any": 1.0,
+     "frac_initial_over": 1.0,
+     "frac_later_over": 3.425442442602041e-06
+    }
+   },
+   "cvar": {
+    "psi=0.05, no cap": {
+     "never early": {
+      "cvar": 14.276178636745888,
+      "se": 0.058125105157692154
+     },
+     "LSM rule": {
+      "cvar": 14.834861336738044,
+      "se": 0.05568669432603233
+     },
+     "mean_abs_position": 0.5520867705345154
+    },
+    "psi=1, no cap": {
+     "never early": {
+      "cvar": 16.54135866371786,
+      "se": 0.0700804103723493
+     },
+     "LSM rule": {
+      "cvar": 18.385681608081917,
+      "se": 0.05979434142216758
+     },
+     "mean_abs_position": 0.5520867705345154
+    },
+    "psi=1, cap": {
+     "never early": {
+      "cvar": 16.65356849059849,
+      "se": 0.07133801794669083
+     },
+     "LSM rule": {
+      "cvar": 18.477018088438832,
+      "se": 0.06422817496985556
+     },
+     "mean_abs_position": 0.547153115272522
+    }
+   }
+  },
+  {
+   "hedge": "GDA (frictionless)",
+   "ckpt": "gda_lam1_a0p9_s1234_heuristic_reduced.pt",
+   "alpha": 0.9,
+   "liquidity": false,
+   "binding": {
+    "psi=0.05": {
+     "q_normal": 5.04,
+     "frac_trades_over": 0.0,
+     "frac_paths_any": 0.0,
+     "frac_initial_over": 0.0,
+     "frac_later_over": 0.0
+    },
+    "psi=1": {
+     "q_normal": 0.252,
+     "frac_trades_over": 0.0234991455078125,
+     "frac_paths_any": 1.0,
+     "frac_initial_over": 1.0,
+     "frac_later_over": 0.003570556640625
+    }
+   },
+   "cvar": {
+    "psi=0.05, no cap": {
+     "never early": {
+      "cvar": 13.313789695946953,
+      "se": 0.05441320016732649
+     },
+     "LSM rule": {
+      "cvar": 13.483434414332473,
+      "se": 0.05428637682494851
+     },
+     "co-trained adversary": {
+      "cvar": 13.59655129316561,
+      "se": 0.055404924966421326
+     },
+     "mean_abs_position": 0.5606398582458496
+    },
+    "psi=1, no cap": {
+     "never early": {
+      "cvar": 13.313789695946953,
+      "se": 0.05441320016732649
+     },
+     "LSM rule": {
+      "cvar": 13.483434414332473,
+      "se": 0.05428637682494851
+     },
+     "co-trained adversary": {
+      "cvar": 13.59655129316561,
+      "se": 0.055404924966421326
+     },
+     "mean_abs_position": 0.5606398582458496
+    },
+    "psi=1, cap": {
+     "never early": {
+      "cvar": 13.492475364278794,
+      "se": 0.0556606678172329
+     },
+     "LSM rule": {
+      "cvar": 13.677701583532869,
+      "se": 0.055879933605640246
+     },
+     "co-trained adversary": {
+      "cvar": 13.796589084103735,
+      "se": 0.05680325838914254
+     },
+     "mean_abs_position": 0.5534456372261047
+    }
+   }
+  }
+ ]
+}

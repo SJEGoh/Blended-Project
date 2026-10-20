@@ -27,7 +27,7 @@ costs:
   #   physical : holder delivers 1 share if in the money: + c |delta_{tau-1} + 1{S_tau < K}| S~_tau
   unwind: none
 
-liquidity:            # volume / liquidity-risk extension (see LIQUIDITY.md); off -> MVP unchanged
+liquidity:            # volume / liquidity-risk extension (see docs/LIQUIDITY.md); off -> MVP unchanged
   enabled: false
   name: base          # label used in run names
   cost_scale: 1.0     # multiplies s0 and Y
@@ -46,6 +46,12 @@ liquidity:            # volume / liquidity-risk extension (see LIQUIDITY.md); of
   sig_ratio_max: 4.0  # cap on sig / sigma_ref in the cost function
   sigma_ref: null     # null -> market.sigma
   seed_offset: 7777
+
+volume_cap:           # hard participation limit on rebalancing; off -> unchanged
+  enabled: false      # |delta_n - delta_{n-1}| <= participation * v_n * dt * days_per_year / liquidity.psi
+  participation: 0.10 # binds only for large positions: use liquidity.psi=1 (cap ~0.25 shares/option/step)
+  days_per_year: 252.0
+  mode: clamp         # clamp | tanh
 
 model:
   hidden: 64

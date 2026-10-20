@@ -48,7 +48,8 @@ def _decisions(cfg, paths, hedger, stopper):
 
 
 # checkpoints trained without the liquidity extension (liquidity runs are covered in test_liquidity.py)
-CKPTS = sorted(p for p in glob.glob(str(ROOT / "checkpoints" / "*.pt")) if "_liq" not in Path(p).name)
+CKPTS = sorted(p for p in glob.glob(str(ROOT / "checkpoints" / "*.pt"))
+               if "_liq" not in Path(p).name and not Path(p).name.startswith("dual_"))   # dual_*: martingale nets
 
 
 @pytest.mark.parametrize("ckpt", [None] + CKPTS[:3])

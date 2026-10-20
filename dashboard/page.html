@@ -1,0 +1,625 @@
+<title>Seller vs Holder</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a match broadcast for one American put. Game mode puts the two players on either side of the
+   market; seller and holder modes lay the round out as four steps, left to right.
+   Deliberately single-theme (a dark trading-floor screen), so colors are set once on :root. */
+:root {
+  color-scheme: dark;
+  --bg: #0b0f15;
+  --panel: #111720;
+  --panel-2: #161e29;
+  --line: #232d3a;
+  --grid: #1b2430;
+  --ink: #e7ebf0;
+  --ink-2: #a3aebd;
+  --ink-3: #6f7b8c;
+  --seller: #1fa894;
+  --seller-wash: rgba(31, 168, 148, 0.14);
+  --holder: #e8683f;
+  --holder-wash: rgba(232, 104, 63, 0.14);
+  --third: #5b8ee8;
+  --liq-lo: #241f3d;
+  --liq-hi: #b9a8ff;
+  --display: "Big Shoulders Display", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 10px;
+}
+html, body { background: var(--bg); color: var(--ink); }
+[hidden] { display: none !important; }
+body { font-family: var(--sans); font-size: 14px; line-height: 1.45; }
+.wrap {
+  max-width: 1480px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 28px;
+  display: grid; gap: 14px;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* ---------- header ---------- */
+.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+.title h1 {
+  margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(34px, 5vw, 54px);
+  line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase; text-wrap: balance;
+}
+.title h1 .s { color: var(--seller); }
+.title h1 .h { color: var(--holder); }
+.title h1 .vs { color: var(--ink-3); font-weight: 600; font-size: 0.55em; vertical-align: 0.35em; margin: 0 0.25em; }
+.eyebrow, .label {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2);
+}
+.title .eyebrow { margin-top: 8px; }
+.modes { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; }
+.modes button {
+  border: 0; background: transparent; padding: 8px 14px; border-radius: 999px; cursor: pointer;
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
+}
+.modes button[aria-selected="true"] { background: var(--panel-2); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.modes button kbd { color: var(--ink-3); font-family: var(--mono); margin-left: 6px; }
+
+/* ---------- board ---------- */
+.board { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; }
+.card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; position: relative;
+}
+.card[hidden] { display: none !important; }
+.card-head { display: flex; align-items: center; gap: 12px; }
+.step-no {
+  width: 30px; height: 30px; flex: none; border-radius: 50%; border: 1.5px solid var(--ink-2);
+  display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: 16px;
+}
+.card-head h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 24px; letter-spacing: 0.02em; text-transform: uppercase; line-height: 1; }
+.card-head .label { margin-top: 3px; }
+.card-head .who { margin-left: auto; }
+
+/* mode layouts */
+.board > .card { grid-column: span 12; }
+.mode-game #c-seller { grid-column: 1 / span 3; grid-row: 1; }
+.mode-game #c-market { grid-column: 4 / span 6; grid-row: 1; }
+.mode-game #c-holder { grid-column: 10 / span 3; grid-row: 1; }
+.mode-game #c-matrix { grid-column: 1 / span 6; grid-row: 2; }
+.mode-game #c-duel { grid-column: 7 / span 6; grid-row: 2 / span 2; }
+.mode-game #c-score { grid-column: 1 / span 6; grid-row: 3; }
+.mode-game #c-train { grid-column: 1 / span 12; grid-row: 4; }
+.mode-seller .card, .mode-holder .card { grid-column: span 3; grid-row: 1; }
+.mode-seller #c-market, .mode-holder #c-market { grid-column: 1 / span 3; }
+.mode-game .step-no { display: none; }
+@media (max-width: 1180px) {
+  .mode-game #c-market { grid-column: 1 / span 12; grid-row: 1; }
+  .mode-game #c-seller { grid-column: 1 / span 6; grid-row: 2; }
+  .mode-game #c-holder { grid-column: 7 / span 6; grid-row: 2; }
+  .mode-game #c-matrix { grid-column: 1 / span 12; grid-row: 3; }
+  .mode-game #c-duel { grid-column: 1 / span 12; grid-row: 4 / span 1; }
+  .mode-game #c-score { grid-column: 1 / span 6; grid-row: 5; }
+  .mode-game #c-train { grid-column: 7 / span 6; grid-row: 5; }
+  .mode-seller .card, .mode-holder .card { grid-column: span 6; grid-row: auto; }
+  .mode-seller #c-market, .mode-holder #c-market { grid-column: 1 / span 6; }
+}
+@media (max-width: 720px) {
+  .board .card, .mode-game .card, .mode-seller .card, .mode-holder .card { grid-column: 1 / -1 !important; grid-row: auto !important; }
+  .mode-game #c-market { order: -1; }
+}
+
+/* ---------- shared bits ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--line); background: var(--panel-2); color: var(--ink-2); border-radius: 999px;
+  padding: 5px 10px; font-size: 12px; cursor: pointer; line-height: 1.2;
+}
+.chip:hover { color: var(--ink); border-color: var(--ink-3); }
+.chip[aria-pressed="true"] { color: var(--ink); border-color: currentColor; }
+.seller-chips .chip[aria-pressed="true"] { background: var(--seller-wash); border-color: var(--seller); }
+.holder-chips .chip[aria-pressed="true"] { background: var(--holder-wash); border-color: var(--holder); }
+.settle-chips .chip[aria-pressed="true"] { background: var(--panel); border-color: var(--ink-2); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px 14px; }
+.stat .label { font-size: 10px; }
+.stat .v { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.15; white-space: nowrap; }
+.stat .v small { font-size: 12px; color: var(--ink-2); font-weight: 500; margin-left: 2px; }
+.big { font-size: 40px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.note { color: var(--ink-2); font-size: 12.5px; margin: 0; max-width: 62ch; }
+.note b { color: var(--ink); font-weight: 600; }
+.rowline { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 7px 0; border-top: 1px solid var(--grid); font-size: 13px; }
+.rowline span:last-child { font-variant-numeric: tabular-nums; font-weight: 500; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500;
+  border: 1px solid var(--line); color: var(--ink-2); background: var(--panel-2);
+}
+.pill.hot { color: var(--ink); border-color: var(--holder); background: var(--holder-wash); }
+.pill.cool { color: var(--ink); border-color: var(--seller); background: var(--seller-wash); }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+canvas { display: block; width: 100%; }
+.chart { position: relative; }
+.tip {
+  position: absolute; pointer-events: none; z-index: 5; background: #0b0f15f2; border: 1px solid var(--line);
+  border-radius: 8px; padding: 7px 9px; font-size: 12px; line-height: 1.4; white-space: nowrap;
+  font-variant-numeric: tabular-nums; color: var(--ink); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.key-line { width: 16px; height: 0; border-top: 2px solid; display: inline-block; }
+.key-line.dash { border-top-style: dashed; }
+
+/* players */
+.player h2 { font-size: 30px; }
+#c-seller h2 { color: var(--seller); }
+#c-holder h2 { color: var(--holder); }
+.gauge { position: relative; height: 34px; }
+.gauge .track { position: absolute; left: 0; right: 0; top: 15px; height: 4px; border-radius: 2px; background: var(--grid); }
+.gauge .fill { position: absolute; top: 15px; height: 4px; border-radius: 2px; }
+.gauge .mark { position: absolute; top: 9px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; border: 2px solid var(--panel); transition: left 0.18s ease; }
+.gauge .mark.shadow { width: 12px; height: 12px; margin-left: -6px; top: 11px; }
+.gauge .mark.ref { background: transparent; border: 2px solid var(--ink-2); width: 14px; height: 14px; margin-left: -7px; top: 10px; }
+.gauge .zero { position: absolute; top: 6px; width: 2px; height: 22px; margin-left: -1px; background: var(--ink-3); }
+.gauge-scale { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
+.verdict { font-family: var(--display); font-weight: 800; font-size: 34px; letter-spacing: 0.04em; line-height: 1; text-transform: uppercase; }
+.verdict.go { color: var(--holder); }
+.verdict.wait { color: var(--ink-2); }
+
+/* matrix */
+.mx-wrap { overflow-x: auto; }
+table.mx { border-collapse: separate; border-spacing: 3px; width: 100%; min-width: 470px; font-variant-numeric: tabular-nums; }
+.mx th { font-weight: 500; font-size: 11.5px; color: var(--ink-2); text-align: center; padding: 4px 2px; line-height: 1.2; }
+.mx th.rowh { text-align: left; white-space: nowrap; padding-right: 8px; }
+.mx th.rowh .dot { margin-right: 6px; background: var(--seller); }
+.mx td { text-align: center; padding: 0; }
+.mx td button {
+  width: 100%; border: 0; border-radius: 6px; padding: 9px 2px; cursor: pointer; font-size: 13px; font-weight: 500;
+  font-variant-numeric: tabular-nums; position: relative; box-shadow: inset 0 0 0 1px transparent;
+}
+.mx td button.best { box-shadow: inset 0 0 0 2px var(--holder); }
+.mx td button.cur { outline: 2px solid var(--ink); outline-offset: 1px; }
+.mx td button .star { position: absolute; top: 1px; right: 4px; font-size: 11px; color: var(--ink); }
+.mx td.worst { font-weight: 600; color: var(--ink); font-size: 13px; }
+.mx tr.minimax th.rowh { color: var(--ink); }
+
+/* play the holder */
+.playbar { background: var(--panel); border: 1px solid var(--holder); border-radius: var(--radius); padding: 12px 16px; display: grid; gap: 6px; }
+.playbar p { margin: 0; max-width: 110ch; font-size: 13.5px; line-height: 1.55; }
+.playbar .keys { color: var(--ink-2); font-size: 12.5px; }
+.playbar kbd, .exercise kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; color: var(--ink-2); }
+.mode-play #c-pA { grid-column: 1 / span 3; grid-row: 1; }
+.mode-play #c-pmarket { grid-column: 4 / span 6; grid-row: 1; }
+.mode-play #c-pB { grid-column: 10 / span 3; grid-row: 1; }
+.mode-play #c-pscore { grid-column: 1 / span 6; grid-row: 2; }
+.mode-play #c-prule { grid-column: 7 / span 6; grid-row: 2; }
+.pl-seller { color: var(--seller); }
+.pl-seller.b { color: var(--third); }
+.pl-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.exercise {
+  border: 1.5px solid var(--holder); background: var(--holder-wash); color: var(--ink); border-radius: 10px; padding: 11px 22px;
+  font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.exercise:hover:not(:disabled) { background: var(--holder); }
+.exercise:disabled { opacity: 0.4; cursor: default; }
+.ps-table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.ps-table th { text-align: right; font-weight: 600; font-size: 13px; padding: 6px 8px; white-space: nowrap; }
+.ps-table td { text-align: right; padding: 7px 8px; border-top: 1px solid var(--grid); white-space: nowrap; }
+.ps-table td:first-child, .ps-table th:first-child { text-align: left; color: var(--ink-2); }
+.ps-table tr.ref td { color: var(--ink-2); }
+.rule-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 10px 14px; align-items: center; font-size: 13px; }
+.rule-grid label b { font-variant-numeric: tabular-nums; }
+.rule-grid input[type="range"] { width: 100%; accent-color: var(--holder); }
+.rule-grid .check { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+.rule-grid input[type="checkbox"] { accent-color: var(--holder); }
+@media (max-width: 1180px) {
+  .mode-play #c-pmarket { grid-column: 1 / span 12; grid-row: 1; }
+  .mode-play #c-pA { grid-column: 1 / span 6; grid-row: 2; }
+  .mode-play #c-pB { grid-column: 7 / span 6; grid-row: 2; }
+  .mode-play #c-pscore { grid-column: 1 / span 12; grid-row: 3; }
+  .mode-play #c-prule { grid-column: 1 / span 12; grid-row: 4; }
+}
+@media (max-width: 720px) {
+  .mode-play #c-pmarket { order: -1; }
+  .rule-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* risk-measure bar */
+.alphabar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 10px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.alphabar .note { flex: 1 1 320px; min-width: 0; }
+#alpha-chips .chip[aria-pressed="true"] { background: var(--panel-2); border-color: var(--ink-2); color: var(--ink); }
+
+/* head to head */
+.duel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; }
+.duel-name { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; padding-bottom: 4px; }
+.duel-name .tag { margin-left: auto; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); font-weight: 400; }
+.duel-diff { display: grid; gap: 2px; padding: 10px 12px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; }
+.duel-diff .v { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.duel-diff .sub { font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.du-wrap { overflow-x: auto; }
+.du-table { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.du-table th { text-align: right; font-family: var(--mono); font-weight: 400; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); padding: 4px 6px; }
+.du-table td { text-align: right; padding: 5px 6px; border-top: 1px solid var(--grid); white-space: nowrap; }
+.du-table th:first-child, .du-table td:first-child { text-align: left; }
+.du-table td.pos::before, .du-table td.neg::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.du-table td.pos::before { background: var(--third); }
+.du-table td.neg::before { background: var(--seller); }
+@media (max-width: 520px) { .duel-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* stepper */
+.stepper { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 12px; }
+.phases { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); position: relative; }
+.phases::before { content: ""; position: absolute; left: 12px; right: 12px; top: 11px; height: 1px; background: var(--line); }
+.phase { position: relative; display: grid; gap: 6px; justify-items: start; }
+.phase .pdot { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--ink-3); background: var(--panel); display: grid; place-items: center; }
+.phase .pdot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: transparent; }
+.phase.on .pdot { border-color: var(--ink); }
+.phase.on .pdot::after { background: var(--ink); }
+.phase.done .pdot { border-color: var(--ink-2); }
+.phase .label { font-size: 10.5px; }
+.phase.on .label { color: var(--ink); }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ctl {
+  border: 1px solid var(--line); background: var(--panel-2); border-radius: 8px; padding: 7px 11px; cursor: pointer;
+  font-size: 12.5px; display: inline-flex; gap: 8px; align-items: center;
+}
+.ctl:hover { border-color: var(--ink-3); }
+.ctl kbd { font-family: var(--mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
+.ctl.primary { border-color: var(--ink-2); }
+.status { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.banner {
+  position: absolute; left: 50%; top: 52px; transform: translateX(-50%); z-index: 4; max-width: calc(100% - 32px);
+  background: #0b0f15ee; border: 1px solid var(--holder); color: var(--ink); border-radius: 8px; padding: 6px 10px;
+  font-size: 12.5px; text-align: center; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); width: max-content; max-width: 85%;
+}
+.banner.seller { border-color: var(--seller); }
+footer { color: var(--ink-3); font-size: 12px; display: grid; gap: 4px; }
+
+/* ---------- the math page ---------- */
+.mathpage { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 40px; align-items: start; }
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 10px; }
+.toc ol { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 2px; }
+.toc li { counter-increment: s; }
+.toc a { display: flex; gap: 10px; padding: 5px 8px; border-radius: 6px; color: var(--ink-2); text-decoration: none; font-size: 13px; }
+.toc a::before { content: counter(s); font-family: var(--mono); font-size: 11px; color: var(--ink-3); width: 16px; text-align: right; padding-top: 1px; }
+.toc a:hover { background: var(--panel); color: var(--ink); }
+.prose { display: grid; gap: 30px; min-width: 0; max-width: 820px; }
+.prose p, .prose li { font-size: 15px; line-height: 1.68; color: var(--ink); max-width: 70ch; margin: 0; }
+.prose p + p { margin-top: 12px; }
+.prose .aside { color: var(--ink-2); font-size: 13.5px; }
+.prose b { font-weight: 600; }
+.intro h2 { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 4.5vw, 48px); text-transform: uppercase; letter-spacing: 0.01em; line-height: 1; margin: 0 0 14px; }
+.intro { display: grid; gap: 12px; }
+.prose section { display: grid; gap: 14px; scroll-margin-top: 16px; padding-top: 22px; border-top: 1px solid var(--line); }
+.sec-head { display: flex; align-items: center; gap: 12px; }
+.sec-head h3 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 27px; letter-spacing: 0.02em; text-transform: uppercase; line-height: 1.05; text-wrap: balance; }
+.eq { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 18px; overflow-x: auto; color: var(--ink); font-size: 15px; }
+.eq.tbl { padding: 6px 12px; }
+.mtab { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+.mtab th { text-align: left; font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); padding: 8px 10px; }
+.mtab td { padding: 8px 10px; border-top: 1px solid var(--grid); }
+.refs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.refs .code { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; }
+.see { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 4px 11px; font-size: 12.5px; color: var(--ink-2); cursor: pointer; }
+.see:hover { color: var(--ink); border-color: var(--ink-3); }
+.see::after { content: " →"; }
+.takeaways { margin: 0; padding-left: 18px; display: grid; gap: 10px; }
+.prose h4 { margin: 8px 0 0; font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2); }
+.thm { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; display: grid; gap: 10px; }
+.thm.proof { background: transparent; }
+.thm > *, .steps > li, .prose section > *, .takeaways > li { min-width: 0; }
+.thm-label { font-family: var(--display); font-weight: 800; font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
+.eq.inner { background: transparent; border: 0; padding: 0; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 12px; }
+.steps li::marker { font-family: var(--mono); color: var(--ink-3); }
+.qed { float: right; color: var(--ink-2); }
+.mathpage mjx-container[display="true"] { margin: 0.6em 0 !important; }
+@media (max-width: 900px) {
+  .mathpage { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .toc { position: static; }
+  .toc ol { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+}
+footer p { margin: 0; max-width: 110ch; }
+@media (prefers-reduced-motion: reduce) { .gauge .mark { transition: none; } }
+</style>
+
+<div class="wrap" id="app">
+  <header class="top">
+    <div class="title">
+      <h1><span class="s">Seller</span><span class="vs">vs</span><span class="h">Holder</span></h1>
+      <div class="eyebrow">American put · Merton jumps · stochastic liquidity · trained networks, live</div>
+    </div>
+    <nav class="modes" role="tablist" aria-label="View">
+      <button role="tab" id="tab-game" data-mode="game" aria-selected="true">Game · both<kbd>1</kbd></button>
+      <button role="tab" id="tab-play" data-mode="play" aria-selected="false">Play the holder<kbd>5</kbd></button>
+      <button role="tab" id="tab-seller" data-mode="seller" aria-selected="false">Seller · hedge<kbd>2</kbd></button>
+      <button role="tab" id="tab-holder" data-mode="holder" aria-selected="false">Holder · price<kbd>3</kbd></button>
+      <button role="tab" id="tab-math" data-mode="math" aria-selected="false">The math<kbd>4</kbd></button>
+    </nav>
+  </header>
+
+  <section class="alphabar" id="alphabar" aria-label="Tail risk level">
+    <div class="label">Seller's risk measure</div>
+    <div class="chips" id="alpha-chips" role="group" aria-label="Risk measure the models were trained for"></div>
+    <p class="note" id="alpha-desc"></p>
+  </section>
+
+  <section class="playbar" id="playbar" aria-label="How to play" hidden>
+    <p><b>You are the holder.</b> Two sellers have sold you the same put and hedge it with their trained networks: the GDA hedge, built for the worst case, and the LSM-trained hedge, built for a textbook holder. Your goal is to hurt them. Exercise on the day you think they are most exposed; you can see what each would owe right now. After each round your damage is compared with the attacker trained against that seller, on the same path.</p>
+    <p class="keys"><kbd>Space</kbd> start or pause · <kbd>E</kbd> exercise · <kbd>N</kbd> next round · <kbd>→</kbd> one day · <kbd>S</kbd> speed</p>
+  </section>
+
+  <main class="board mode-game" id="board">
+    <!-- seller player (game) -->
+    <section class="card player" id="c-seller" aria-label="Seller">
+      <div class="card-head"><div><h2>Seller</h2><div class="label">Short one put · minimises tail loss</div></div></div>
+      <div class="chips seller-chips" data-group="hedge"></div>
+      <div>
+        <div class="label">Shares held per option</div>
+        <div class="big" id="s-delta">−0.00</div>
+      </div>
+      <div>
+        <div class="gauge" id="s-gauge"><div class="track"></div><div class="fill"></div><div class="zero"></div><div class="mark ref" title="Merton delta"></div><div class="mark shadow" title="Comparison hedge"></div><div class="mark main"></div></div>
+        <div class="gauge-scale"><span>−1 share</span><span>−0.5</span><span>0</span></div>
+        <div class="legend" style="margin-top:6px"><span><i class="dot" style="background:var(--seller)"></i>this hedge</span><span><i class="dot" style="border:2px solid var(--ink-2);width:7px;height:7px"></i>Merton delta</span><span><i class="dot" style="background:var(--third)"></i><span id="s-shadow-key">LSM-trained</span> (comparison)</span></div>
+      </div>
+      <div>
+        <div class="rowline"><span>Trade today</span><span id="s-trade">—</span></div>
+        <div class="rowline"><span>Trading costs so far</span><span id="s-cost">—</span></div>
+        <div class="rowline"><span>Owes if exercised now</span><span id="s-owes">—</span></div>
+        <div class="rowline"><span id="s-shadow-label">LSM-trained would owe</span><span id="s-shadow-owes">—</span></div>
+      </div>
+      <p class="note" id="s-desc"></p>
+    </section>
+
+    <!-- market (all modes) -->
+    <section class="card" id="c-market" aria-label="Market">
+      <div class="card-head"><div class="step-no">1</div><div><h2>Market</h2><div class="label">One simulated path · 50 exercise dates over 6 months</div></div></div>
+      <div class="stats">
+        <div class="stat"><div class="label">Stock</div><div class="v" id="m-S">$100.00</div></div>
+        <div class="stat"><div class="label">Trading days left</div><div class="v" id="m-days">126</div></div>
+        <div class="stat"><div class="label">Illiquidity</div><div class="v" id="m-ell">1.0<small>× normal</small></div></div>
+        <div class="stat"><div class="label">Cost per share</div><div class="v" id="m-kappa">$0.33</div></div>
+      </div>
+      <div class="chart" id="m-chart"><canvas id="cv-market" height="300" aria-label="Stock price path with strike, jumps and the exercise date"></canvas></div>
+      <div class="legend"><span><i class="key-line" style="color:var(--ink)"></i>stock price</span><span><i class="key-line dash" style="color:var(--ink-3)"></i>strike $100</span><span>▼ jump</span><span><i class="dot" style="background:var(--holder)"></i>exercise</span><span><i class="dot" style="background:linear-gradient(90deg,var(--liq-lo),var(--liq-hi));width:26px;border-radius:3px"></i>illiquidity, 1× to 10×</span></div>
+    </section>
+
+    <!-- holder player (game) -->
+    <section class="card player" id="c-holder" aria-label="Holder">
+      <div class="card-head"><div><h2>Holder</h2><div class="label" id="h-role">Worst case for the seller</div></div></div>
+      <div class="chips holder-chips" data-group="stop"></div>
+      <div>
+        <div class="label">Decision today</div>
+        <div class="verdict wait" id="h-verdict">Wait</div>
+      </div>
+      <div>
+        <div class="label" id="h-signal-label">Exercise signal</div>
+        <div class="chart"><canvas id="cv-signal" height="96" aria-label="Exercise signal over the round"></canvas></div>
+      </div>
+      <div>
+        <div class="rowline"><span>Seller owes if I exercise</span><span id="h-owes">—</span></div>
+        <div class="rowline"><span>Moneyness</span><span id="h-itm">—</span></div>
+        <div class="rowline"><span>Days held</span><span id="h-days">—</span></div>
+      </div>
+      <p class="note" id="h-desc"></p>
+    </section>
+
+    <!-- payoff matrix (game) -->
+    <section class="card" id="c-matrix" aria-label="Payoff matrix">
+      <div class="card-head"><div><h2>Payoff matrix</h2><div class="label" id="mx-sub">Seller's tail loss · CVaR 90% · $ per option · 262,144 test paths</div></div></div>
+      <div class="mx-wrap"><table class="mx" id="mx"></table></div>
+      <p class="note" id="mx-note"></p>
+    </section>
+
+    <!-- head to head (game) -->
+    <section class="card" id="c-duel" aria-label="Head to head">
+      <div class="card-head"><div><h2>Head to head</h2><div class="label" id="du-sub">Same paths, same holder · seller's loss before the premium</div></div></div>
+      <div class="duel-grid">
+        <div class="duel-col">
+          <div class="duel-name"><i class="dot" style="background:var(--seller)"></i><span id="du-a-name">GDA hedge</span></div>
+          <div class="rowline"><span>Mean loss · rounds here</span><span id="du-a-mean">—</span></div>
+          <div class="rowline"><span id="du-a-cvar-l">CVaR 90% · rounds here</span><span id="du-a-cvar">—</span></div>
+          <div class="rowline"><span id="du-a-ref-l">CVaR 90% · test paths</span><span id="du-a-ref">—</span></div>
+        </div>
+        <div class="duel-col">
+          <div class="duel-name"><i class="dot" style="background:var(--third)"></i><span id="du-b-name">LSM-trained</span><span class="tag">comparison</span></div>
+          <div class="rowline"><span>Mean loss · rounds here</span><span id="du-b-mean">—</span></div>
+          <div class="rowline"><span id="du-b-cvar-l">CVaR 90% · rounds here</span><span id="du-b-cvar">—</span></div>
+          <div class="rowline"><span id="du-b-ref-l">CVaR 90% · test paths</span><span id="du-b-ref">—</span></div>
+        </div>
+      </div>
+      <div class="duel-diff">
+        <div class="label" id="du-diff-label">Difference in CVaR 90%</div>
+        <div class="v" id="du-diff-live">—</div>
+        <div class="sub" id="du-diff-ref">—</div>
+      </div>
+      <div class="chart" id="du-chart"><canvas id="cv-duel" height="230" aria-label="Each round's loss for both hedges"></canvas></div>
+      <div class="legend"><span><i class="dot" style="background:var(--third)"></i>comparison hedge lost more</span><span><i class="dot" style="background:var(--seller)"></i>chosen hedge lost more</span><span><i class="dot" style="background:var(--ink-3)"></i>tie</span><span><i class="dot" style="background:var(--holder);opacity:.4;border-radius:2px;width:14px"></i><span id="du-tail-l">each hedge's worst 10%</span></span></div>
+      <div class="du-wrap"><table class="du-table"><thead><tr><th>Exercised</th><th id="du-th-a">GDA hedge</th><th id="du-th-b">LSM-trained</th><th>Difference</th></tr></thead><tbody id="du-recent"></tbody></table></div>
+      <p class="note" id="du-note"></p>
+    </section>
+
+    <!-- score (game + seller) -->
+    <section class="card" id="c-score" aria-label="Score">
+      <div class="card-head"><div class="step-no">3</div><div><h2 id="score-title">Score</h2><div class="label" id="score-sub">Seller's loss at exercise, this matchup</div></div></div>
+      <div class="chips holder-chips" data-group="stop" id="score-against" hidden></div>
+      <div class="stats">
+        <div class="stat"><div class="label" id="sc-ref-l">CVaR 90% · test set</div><div class="v" id="sc-ref">—</div></div>
+        <div class="stat"><div class="label" id="sc-live-l">CVaR 90% · rounds here</div><div class="v" id="sc-live">—</div></div>
+        <div class="stat"><div class="label">Rounds played</div><div class="v" id="sc-n">0</div></div>
+      </div>
+      <div class="chart" id="sc-chart"><canvas id="cv-hist" height="210" aria-label="Histogram of the seller's loss"></canvas></div>
+      <div class="legend"><span><i class="dot" style="background:var(--seller)"></i>rounds played here</span><span><i class="dot" style="border:1.5px solid var(--ink-2);border-radius:2px;width:8px;height:8px"></i>262,144 test paths</span><span><i class="dot" style="background:var(--holder)"></i><span id="sc-tail-l">worst 10% (averaged by CVaR)</span></span></div>
+      <div id="sc-train" hidden>
+        <div class="label">Tail risk during training</div>
+        <div class="chart"><canvas id="cv-spark" height="70" aria-label="CVaR during training"></canvas></div>
+      </div>
+    </section>
+
+    <!-- training replay (game) -->
+    <section class="card" id="c-train" aria-label="Training">
+      <div class="card-head"><div><h2>How they learned</h2><div class="label" id="tr-sub">Gradient descent–ascent · 1,500 iterations · early ones stretched</div></div></div>
+      <div class="chart" id="tr-chart"><canvas id="cv-train" height="230" aria-label="Seller and attacker objectives during training"></canvas></div>
+      <div class="legend"><span><i class="key-line" style="color:var(--seller)"></i>seller's loss (minimised)</span><span><i class="key-line" style="color:var(--holder)"></i>attacker's objective (maximised)</span><span id="tr-band"><i class="dot" style="background:var(--third);opacity:.35;border-radius:2px;width:14px"></i>certified worst case</span></div>
+      <p class="note" id="tr-note"></p>
+    </section>
+
+    <!-- seller mode: hedge -->
+    <section class="card" id="c-hedge" aria-label="Hedge" hidden>
+      <div class="card-head"><div class="step-no">2</div><div><h2>Hedge</h2><div class="label">Trade risk against trading cost</div></div></div>
+      <div class="chips seller-chips" data-group="hedge"></div>
+      <div class="chart"><canvas id="cv-shares" height="200" aria-label="Shares held: this hedge versus Merton delta"></canvas></div>
+      <div class="stats">
+        <div class="stat"><div class="label">This hedge</div><div class="v" id="hd-delta">—</div></div>
+        <div class="stat"><div class="label">Merton delta</div><div class="v" id="hd-ref">—</div></div>
+      </div>
+      <div class="pill" id="hd-trade">Trade cost $0.000</div>
+      <div>
+        <div class="label">Trading cost so far</div>
+        <div class="chart"><canvas id="cv-costs" height="64" aria-label="Cumulative trading cost: this hedge versus Merton delta"></canvas></div>
+      </div>
+      <p class="note">Every trade pays a spread and market impact that grow when the market is illiquid.</p>
+    </section>
+
+    <!-- seller mode: policy -->
+    <section class="card" id="c-spolicy" aria-label="Hedge policy" hidden>
+      <div class="card-head"><div class="step-no">4</div><div><h2>Hedge policy</h2><div class="label">Shares held vs stock price, today</div></div></div>
+      <div class="chart" id="sp-chart"><canvas id="cv-spolicy" height="260" aria-label="Hedge ratio against stock price"></canvas></div>
+      <div class="legend"><span><i class="key-line" style="color:var(--seller)"></i>this hedge, today's liquidity</span><span><i class="key-line dash" style="color:var(--seller)"></i>same, normal liquidity</span><span><i class="key-line dash" style="color:var(--ink-2)"></i>Merton delta</span></div>
+      <p class="note" id="sp-note"></p>
+    </section>
+
+    <!-- holder mode: decide -->
+    <section class="card" id="c-decide" aria-label="Decide" hidden>
+      <div class="card-head"><div class="step-no">2</div><div><h2>Decide</h2><div class="label">Exercise now or wait</div></div></div>
+      <div class="chips settle-chips" data-group="settle"></div>
+      <div class="verdict wait" id="dc-verdict">Wait</div>
+      <div class="chart"><canvas id="cv-decide" height="150" aria-label="Exercise value against continuation value"></canvas></div>
+      <div class="chart"><canvas id="cv-decide-hist" height="90" aria-label="Exercise value and continuation value over the round"></canvas></div>
+      <div class="legend"><span><i class="key-line" style="color:var(--holder)"></i>exercise value</span><span><i class="key-line dash" style="color:var(--ink-2)"></i>value of waiting</span></div>
+      <p class="note" id="dc-note"></p>
+    </section>
+
+    <!-- holder mode: price -->
+    <section class="card" id="c-price" aria-label="Price" hidden>
+      <div class="card-head"><div class="step-no">3</div><div><h2>Price</h2><div class="label">Certified bracket · discounted $ per option</div></div></div>
+      <div class="stats">
+        <div class="stat"><div class="label">Price bracket</div><div class="v" id="pr-br">—</div></div>
+        <div class="stat"><div class="label">Average here</div><div class="v" id="pr-live">—</div></div>
+      </div>
+      <div class="chart"><canvas id="cv-price" height="210" aria-label="Price brackets by settlement"></canvas></div>
+      <div class="legend"><span><i class="dot" style="background:var(--ink-2);border-radius:2px;width:14px;height:6px"></i>certified bracket</span><span>│ European</span><span><i class="dot" style="background:var(--holder)"></i>average payoff, rounds here ±2 SE</span></div>
+      <p class="note" id="pr-note"></p>
+    </section>
+
+    <!-- holder mode: policy -->
+    <section class="card" id="c-hpolicy" aria-label="Exercise policy" hidden>
+      <div class="card-head"><div class="step-no">4</div><div><h2>Exercise policy</h2><div class="label">Where and when the holder exercised</div></div></div>
+      <div class="chart" id="hp-chart"><canvas id="cv-hpolicy" height="200" aria-label="Exercise points by day and stock price, coloured by illiquidity"></canvas></div>
+      <div class="legend"><span><i class="dot" style="background:var(--liq-hi)"></i>one early exercise</span><span><i class="dot" style="background:linear-gradient(90deg,var(--liq-lo),var(--liq-hi));width:26px;border-radius:3px"></i>illiquidity at that moment, 1× to 10×</span></div>
+      <div>
+        <div class="label">Exercise rate deep in the money (stock below $92), by illiquidity</div>
+        <div class="chart" id="hp-bars"><canvas id="cv-hprop" height="120" aria-label="Exercise rate by illiquidity bucket"></canvas></div>
+      </div>
+      <p class="note" id="hp-note"></p>
+    </section>
+    <!-- play the holder -->
+    <section class="card" id="c-pA" aria-label="GDA seller" hidden>
+      <div class="card-head"><div><h2 class="pl-seller">GDA seller</h2><div class="label">Hedge built for the worst case</div></div></div>
+      <div><div class="label">Owes if you exercise now</div><div class="big" id="pA-owes">—</div></div>
+      <div class="chart"><canvas id="cv-pA" height="120" aria-label="What the GDA seller would owe each day"></canvas></div>
+      <div class="rowline"><span>Shares held</span><span id="pA-delta">—</span></div>
+      <div class="rowline"><span>Trading costs so far</span><span id="pA-cost">—</span></div>
+      <p class="note" id="pA-note"></p>
+    </section>
+    <section class="card" id="c-pmarket" aria-label="Your move" hidden>
+      <div class="card-head"><div><h2>Your move</h2><div class="label" id="pm-sub">Round 1 · press Space to start</div></div></div>
+      <div class="stats">
+        <div class="stat"><div class="label">Stock</div><div class="v" id="pm-S">$100.00</div></div>
+        <div class="stat"><div class="label">Trading days left</div><div class="v" id="pm-days">126</div></div>
+        <div class="stat"><div class="label">Illiquidity</div><div class="v" id="pm-ell">1.0<small>× normal</small></div></div>
+        <div class="stat"><div class="label">Your payoff now</div><div class="v" id="pm-pay">$0.00</div></div>
+      </div>
+      <div class="chart" id="pm-chart"><canvas id="cv-pmarket" height="280" aria-label="Stock price path with your exercise and the attackers'"></canvas></div>
+      <div class="pl-controls">
+        <button class="ctl" id="pl-start"><span id="pl-start-t">Start round</span><kbd>Space</kbd></button>
+        <button class="exercise" id="pl-ex" disabled>Exercise now<kbd>E</kbd></button>
+        <button class="ctl" id="pl-next">Next round<kbd>N</kbd></button>
+        <button class="ctl" id="pl-speed">Speed 1×<kbd>S</kbd></button>
+      </div>
+      <div class="legend"><span><i class="key-line" style="color:var(--ink)"></i>stock price</span><span><i class="dot" style="background:var(--holder)"></i>your exercise</span><span>◆ attacker's exercise (teal: vs GDA, blue: vs LSM-trained)</span></div>
+      <p class="note" id="pm-result"></p>
+    </section>
+    <section class="card" id="c-pB" aria-label="LSM-trained seller" hidden>
+      <div class="card-head"><div><h2 class="pl-seller b">LSM-trained seller</h2><div class="label">Hedge built for a textbook holder</div></div></div>
+      <div><div class="label">Owes if you exercise now</div><div class="big" id="pB-owes">—</div></div>
+      <div class="chart"><canvas id="cv-pB" height="120" aria-label="What the LSM-trained seller would owe each day"></canvas></div>
+      <div class="rowline"><span>Shares held</span><span id="pB-delta">—</span></div>
+      <div class="rowline"><span>Trading costs so far</span><span id="pB-cost">—</span></div>
+      <p class="note" id="pB-note"></p>
+    </section>
+    <section class="card" id="c-pscore" aria-label="Your score" hidden>
+      <div class="card-head"><div><h2>Your score</h2><div class="label" id="ps-sub">No rounds yet</div></div></div>
+      <div class="du-wrap"><table class="ps-table">
+        <thead><tr><th></th><th><i class="dot" style="background:var(--seller)"></i> GDA seller</th><th><i class="dot" style="background:var(--third)"></i> LSM-trained seller</th></tr></thead>
+        <tbody>
+          <tr><td>Your average damage</td><td id="ps-ya">—</td><td id="ps-yb">—</td></tr>
+          <tr><td>Attacker's average, same paths</td><td id="ps-aa">—</td><td id="ps-ab">—</td></tr>
+          <tr><td>Rounds you beat the attacker</td><td id="ps-wa">—</td><td id="ps-wb">—</td></tr>
+          <tr><td>Your tail, CVaR 90%</td><td id="ps-ta">—</td><td id="ps-tb">—</td></tr>
+          <tr><td>Attacker's tail, same paths</td><td id="ps-tta">—</td><td id="ps-ttb">—</td></tr>
+          <tr class="ref"><td>Seller's own estimate</td><td id="ps-oa">—</td><td id="ps-ob">—</td></tr>
+          <tr class="ref"><td>Certified ceiling (any rule)</td><td id="ps-ca">—</td><td id="ps-cb">—</td></tr>
+        </tbody></table></div>
+      <div>
+        <div class="label">Your damage minus the attacker's, each round</div>
+        <div class="chart" id="ps-chart"><canvas id="cv-pscore" height="120" aria-label="Per-round difference between your damage and the attacker's"></canvas></div>
+      </div>
+      <p class="note" id="ps-note"></p>
+    </section>
+    <section class="card" id="c-prule" aria-label="Rule builder" hidden>
+      <div class="card-head"><div><h2>Turn it into a rule</h2><div class="label" id="pr-sub">Preparing 4,000 fresh paths…</div></div></div>
+      <p class="note">A handful of rounds is mostly luck. Write your instinct down as a rule and it is scored on 4,000 paths, against each seller separately.</p>
+      <div class="rule-grid">
+        <label for="r-x">Exercise when the seller owes at least <b id="r-x-v">$12.00</b></label>
+        <input type="range" id="r-x" min="0" max="30" step="0.25" value="12">
+        <label for="r-y">and illiquidity is at most <b id="r-y-v">any</b></label>
+        <input type="range" id="r-y" min="1" max="10" step="0.25" value="10">
+        <label for="r-d">and it is at least day <b id="r-d-v">0</b></label>
+        <input type="range" id="r-d" min="0" max="120" step="1" value="0">
+        <label class="check"><input type="checkbox" id="r-itm"> only when the option is in the money</label>
+      </div>
+      <div class="chart" id="pr-chart"><canvas id="cv-prule" height="150" aria-label="Your rule's tail loss against the attacker, the seller's own estimate and the certified ceiling"></canvas></div>
+      <div class="legend"><span><i class="dot" style="background:var(--holder)"></i>your rule</span><span><i class="dot" style="background:var(--ink)"></i>trained attacker</span><span><i class="key-line dash" style="color:var(--ink-2)"></i>seller's own estimate</span><span><i class="dot" style="background:var(--third);opacity:.35;border-radius:2px;width:14px"></i>above the certified ceiling: impossible</span></div>
+      <div class="pl-controls">
+        <button class="ctl" id="r-best-a">Find the best rule vs GDA</button>
+        <button class="ctl" id="r-best-b">Find the best rule vs LSM-trained</button>
+      </div>
+      <p class="note" id="pr-note"></p>
+    </section>
+  </main>
+
+/*__MATH__*/
+
+  <section class="stepper" aria-label="Round progress and controls">
+    <div class="phases" id="phases"></div>
+    <div class="controls">
+      <button class="ctl primary" id="b-play"><span id="b-play-t">Pause</span><kbd>Space</kbd></button>
+      <button class="ctl" id="b-step">Step a day<kbd>→</kbd></button>
+      <button class="ctl" id="b-new">New path<kbd>N</kbd></button>
+      <button class="ctl" id="b-batch"><span id="b-batch-t">Play 1,000 rounds</span><kbd>B</kbd></button>
+      <button class="ctl" id="b-speed">Speed 1×<kbd>S</kbd></button>
+      <span class="status" id="status"></span>
+    </div>
+  </section>
+
+  <footer>
+    <p id="foot-model"></p>
+    <p>Paths are simulated in your browser; the hedges, adversaries and exercise rules are the trained networks, exported from the Python project and checked against it to 1e-4.</p>
+  </footer>
+</div>
+
+<script>window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] }, svg: { fontCache: "global" }, startup: { typeset: false }, options: { enableMenu: false } };</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script>/*__ENGINE__*/</script>
+<script>const DATA = /*__DATA__*/;</script>
+<script>/*__APP__*/</script>

@@ -1,0 +1,38 @@
+cash_lam1|--exercise-cost none --set market.lam=1
+phys_lam1|--exercise-cost liquidity --set market.lam=1
+cash_lam0|--exercise-cost none --set market.lam=0
+phys_lam0|--exercise-cost liquidity --set market.lam=0
+cash_lam0p5|--exercise-cost none --set market.lam=0.5
+cash_lam2|--exercise-cost none --set market.lam=2
+cash_lam4|--exercise-cost none --set market.lam=4
+cash_m0|--exercise-cost none --set market.lam=1.0 market.m=0.0
+cash_mneg0p05|--exercise-cost none --set market.lam=1.0 market.m=-0.05
+cash_mneg0p2|--exercise-cost none --set market.lam=1.0 market.m=-0.2
+cash_mneg0p3|--exercise-cost none --set market.lam=1.0 market.m=-0.3
+cash_delta0p05|--exercise-cost none --set market.lam=1.0 market.delta=0.05
+cash_delta0p25|--exercise-cost none --set market.lam=1.0 market.delta=0.25
+cash_delta0p35|--exercise-cost none --set market.lam=1.0 market.delta=0.35
+cash_S090|--exercise-cost none --set market.lam=1.0 market.S0=90
+cash_S0110|--exercise-cost none --set market.lam=1.0 market.S0=110
+phys_lam0p5|--exercise-cost liquidity --set market.lam=0.5
+phys_lam2|--exercise-cost liquidity --set market.lam=2
+phys_lam4|--exercise-cost liquidity --set market.lam=4
+phys_m0|--exercise-cost liquidity --set market.lam=1.0 market.m=0.0
+phys_mneg0p05|--exercise-cost liquidity --set market.lam=1.0 market.m=-0.05
+phys_mneg0p2|--exercise-cost liquidity --set market.lam=1.0 market.m=-0.2
+phys_mneg0p3|--exercise-cost liquidity --set market.lam=1.0 market.m=-0.3
+phys_delta0p05|--exercise-cost liquidity --set market.lam=1.0 market.delta=0.05
+phys_delta0p25|--exercise-cost liquidity --set market.lam=1.0 market.delta=0.25
+phys_delta0p35|--exercise-cost liquidity --set market.lam=1.0 market.delta=0.35
+phys_S090|--exercise-cost liquidity --set market.lam=1.0 market.S0=90
+phys_S0110|--exercise-cost liquidity --set market.lam=1.0 market.S0=110
+phys_scale0|--exercise-cost liquidity --set market.lam=1.0 liquidity.cost_scale=0
+phys_scale0p5|--exercise-cost liquidity --set market.lam=1.0 liquidity.cost_scale=0.5
+phys_scale2|--exercise-cost liquidity --set market.lam=1.0 liquidity.cost_scale=2
+phys_scale4|--exercise-cost liquidity --set market.lam=1.0 liquidity.cost_scale=4
+phys_psi0p01|--exercise-cost liquidity --set market.lam=1.0 liquidity.psi=0.01
+phys_psi0p25|--exercise-cost liquidity --set market.lam=1.0 liquidity.psi=0.25
+phys_psi1|--exercise-cost liquidity --set market.lam=1.0 liquidity.psi=1
+phys_mild|--exercise-cost liquidity --set market.lam=1.0 liquidity.name=mild liquidity.ell_max=5 liquidity.sig_ratio_max=3
+phys_psi1_lam0|--exercise-cost liquidity --set market.lam=0 liquidity.psi=1
+phys_psi1_lam2|--exercise-cost liquidity --set market.lam=2 liquidity.psi=1

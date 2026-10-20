@@ -1,0 +1,2 @@
+== base_liq: exercise cost = liquidity, S0 = 100, lam = 1, m = -0.1, delta = 0.15, sigma = 0.2, psi = 0.05, cost scale = 1, ell_max = 10
+  price in [6.3548 ± 0.0249, 6.4047 ± 0.0028] (width 0.0499); European 6.2305; early premium +0.1243; early exercise 0.347; max |z| 2.49; 13.3 min

@@ -1,0 +1,1183 @@
+{
+ "rows": [
+  {
+   "name": "cash_S0110",
+   "cost": "none",
+   "S0": 110.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 3.474877274228363,
+   "upper": 3.4920314281618268,
+   "width": 0.017154153933463867,
+   "mid": 3.483454351195095,
+   "european": 3.4159859413019444,
+   "lower_rule": 3.474877274228363,
+   "early_premium": 0.0674684098931504,
+   "frac_early": 0.20341873168945312,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.05889133292641846,
+    0.07604548685988233
+   ],
+   "crr": null,
+   "euro_cf": 3.4159859413019444
+  },
+  {
+   "name": "cash_S090",
+   "cost": "none",
+   "S0": 90.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 11.94014377852849,
+   "upper": 11.999692428506034,
+   "width": 0.05954864997754328,
+   "mid": 11.969918103517262,
+   "european": 11.662826603343406,
+   "lower_rule": 11.94014377852849,
+   "early_premium": 0.3070915001738559,
+   "frac_early": 0.6261138916015625,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.27731717518508425,
+    0.33686582516262753
+   ],
+   "crr": null,
+   "euro_cf": 11.662826603343406
+  },
+  {
+   "name": "cash_delta0p05",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.05,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 5.757518019044979,
+   "upper": 5.78574147919187,
+   "width": 0.028223460146890922,
+   "mid": 5.771629749118425,
+   "european": 5.620567638065068,
+   "lower_rule": 5.757518019044979,
+   "early_premium": 0.1510621110533572,
+   "frac_early": 0.3941917419433594,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.1369503809799113,
+    0.16517384112680222
+   ],
+   "crr": null,
+   "euro_cf": 5.620567638065068
+  },
+  {
+   "name": "cash_delta0p25",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.25,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 7.733076471660576,
+   "upper": 7.758278711277975,
+   "width": 0.02520223961739898,
+   "mid": 7.745677591469276,
+   "european": 7.65469688341479,
+   "lower_rule": 7.733076471660576,
+   "early_premium": 0.09098070805448621,
+   "frac_early": 0.3641624450683594,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.07837958824578628,
+    0.10358182786318526
+   ],
+   "crr": null,
+   "euro_cf": 7.65469688341479
+  },
+  {
+   "name": "cash_delta0p35",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.35,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 9.108910385983439,
+   "upper": 9.137438601504263,
+   "width": 0.028528215520823963,
+   "mid": 9.12317449374385,
+   "european": 9.073878305738566,
+   "lower_rule": 9.108910385983439,
+   "early_premium": 0.049296188005284236,
+   "frac_early": 0.32884979248046875,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.03503208024487314,
+    0.0635602957656971
+   ],
+   "crr": null,
+   "euro_cf": 9.073878305738566
+  },
+  {
+   "name": "cash_lam0",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 0.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 4.997641003432025,
+   "upper": 5.043484553179493,
+   "width": 0.04584354974746763,
+   "mid": 5.020562778305759,
+   "european": 4.882221902473724,
+   "lower_rule": 4.997641003432025,
+   "early_premium": 0.1383408758320357,
+   "frac_early": 0.386932373046875,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.11541910095830143,
+    0.16126265070576906
+   ],
+   "crr": 5.005923030979893,
+   "euro_cf": 4.882221902473724
+  },
+  {
+   "name": "cash_lam0p5",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 0.5,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 5.8041763069251715,
+   "upper": 5.827703494915539,
+   "width": 0.023527187990367793,
+   "mid": 5.815939900920355,
+   "european": 5.677637664916937,
+   "lower_rule": 5.8041763069251715,
+   "early_premium": 0.13830223600341807,
+   "frac_early": 0.378662109375,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.12653864200823417,
+    0.15006582999860196
+   ],
+   "crr": null,
+   "euro_cf": 5.677637664916937
+  },
+  {
+   "name": "cash_lam1",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 6.5641822535746845,
+   "upper": 6.585989050923846,
+   "width": 0.021806797349161577,
+   "mid": 6.575085652249266,
+   "european": 6.431367647166092,
+   "lower_rule": 6.5641822535746845,
+   "early_premium": 0.14371800508317367,
+   "frac_early": 0.37783050537109375,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.13281460640859244,
+    0.15462140375775402
+   ],
+   "crr": null,
+   "euro_cf": 6.431367647166092
+  },
+  {
+   "name": "cash_lam2",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 2.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 7.95238411112633,
+   "upper": 7.978797082947128,
+   "width": 0.026412971820798603,
+   "mid": 7.965590597036729,
+   "european": 7.811997195002888,
+   "lower_rule": 7.95238411112633,
+   "early_premium": 0.15359340203384075,
+   "frac_early": 0.380157470703125,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.14038691612344145,
+    0.16679988794424006
+   ],
+   "crr": null,
+   "euro_cf": 7.811997195002888
+  },
+  {
+   "name": "cash_lam4",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 4.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 10.28377941257577,
+   "upper": 10.304190001467454,
+   "width": 0.0204105888916839,
+   "mid": 10.293984707021611,
+   "european": 10.13195148611984,
+   "lower_rule": 10.28377941257577,
+   "early_premium": 0.16203322090177075,
+   "frac_early": 0.4139060974121094,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.15182792645592968,
+    0.17223851534761359
+   ],
+   "crr": null,
+   "euro_cf": 10.13195148611984
+  },
+  {
+   "name": "cash_m0",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": 0.0,
+   "delta": 0.15,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 6.166121797575581,
+   "upper": 6.190091343646648,
+   "width": 0.023969546071066716,
+   "mid": 6.1781065706111145,
+   "european": 6.0884477048879875,
+   "lower_rule": 6.166121797575581,
+   "early_premium": 0.08965886572312698,
+   "frac_early": 0.380645751953125,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.07767409268759362,
+    0.10164363875866034
+   ],
+   "crr": null,
+   "euro_cf": 6.0884477048879875
+  },
+  {
+   "name": "cash_mneg0p05",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.05,
+   "delta": 0.15,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 6.257543678291662,
+   "upper": 6.280154606099022,
+   "width": 0.02261092780736007,
+   "mid": 6.268849142195342,
+   "european": 6.149224986085355,
+   "lower_rule": 6.257543678291662,
+   "early_premium": 0.11962415610998711,
+   "frac_early": 0.3764076232910156,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.10831869220630708,
+    0.13092962001366715
+   ],
+   "crr": null,
+   "euro_cf": 6.149224986085355
+  },
+  {
+   "name": "cash_mneg0p2",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.2,
+   "delta": 0.15,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 7.698246834125851,
+   "upper": 7.72014069645491,
+   "width": 0.02189386232905921,
+   "mid": 7.709193765290381,
+   "european": 7.5270985537861135,
+   "lower_rule": 7.698246834125851,
+   "early_premium": 0.18209521150426777,
+   "frac_early": 0.375701904296875,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.17114828033973772,
+    0.19304214266879693
+   ],
+   "crr": null,
+   "euro_cf": 7.5270985537861135
+  },
+  {
+   "name": "cash_mneg0p3",
+   "cost": "none",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.3,
+   "delta": 0.15,
+   "psi": null,
+   "cost_scale": null,
+   "ell_max": null,
+   "lower": 9.29898817300846,
+   "upper": 9.318313595748378,
+   "width": 0.019325422739917997,
+   "mid": 9.30865088437842,
+   "european": 9.097360528433928,
+   "lower_rule": 9.29898817300846,
+   "early_premium": 0.21129035594449164,
+   "frac_early": 0.3701667785644531,
+   "liquidity_discount": null,
+   "liquidity_discount_range": null,
+   "premium_range": [
+    0.20162764457453264,
+    0.22095306731445064
+   ],
+   "crr": null,
+   "euro_cf": 9.097360528433928
+  },
+  {
+   "name": "phys_S0110",
+   "cost": "liquidity",
+   "S0": 110.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 3.3088357589575965,
+   "upper": 3.405021956486102,
+   "width": 0.09618619752850543,
+   "mid": 3.356928857721849,
+   "european": 3.2659305424805694,
+   "lower_rule": 3.3088357589575965,
+   "early_premium": 0.09099831524127966,
+   "frac_early": 0.16788482666015625,
+   "liquidity_discount": 0.12652549347324582,
+   "liquidity_discount_range": [
+    0.06985531774226095,
+    0.18319566920423025
+   ],
+   "premium_range": [
+    0.042905216477027164,
+    0.1390914140055326
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_S090",
+   "cost": "liquidity",
+   "S0": 90.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 11.64700885034232,
+   "upper": 11.827087534896098,
+   "width": 0.18007868455377718,
+   "mid": 11.73704819261921,
+   "european": 11.386608026302929,
+   "lower_rule": 11.64700885034232,
+   "early_premium": 0.3504401663162806,
+   "frac_early": 0.6076507568359375,
+   "liquidity_discount": 0.23286991089805298,
+   "liquidity_discount_range": [
+    0.11305624363239275,
+    0.3526835781637132
+   ],
+   "premium_range": [
+    0.260400824039392,
+    0.4404795085931692
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_delta0p05",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.05,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 5.5495546007802865,
+   "upper": 5.634735528325148,
+   "width": 0.08518092754486162,
+   "mid": 5.592145064552717,
+   "european": 5.430666202275847,
+   "lower_rule": 5.5495546007802865,
+   "early_premium": 0.16147886227687014,
+   "frac_early": 0.3570518493652344,
+   "liquidity_discount": 0.17948468456570765,
+   "liquidity_discount_range": [
+    0.12278249071983094,
+    0.23618687841158348
+   ],
+   "premium_range": [
+    0.11888839850443933,
+    0.20406932604930095
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_delta0p25",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.25,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 7.478862309546023,
+   "upper": 7.608848192800102,
+   "width": 0.12998588325407923,
+   "mid": 7.5438552511730625,
+   "european": 7.434870156975429,
+   "lower_rule": 7.478862309546023,
+   "early_premium": 0.10898509419763336,
+   "frac_early": 0.3290748596191406,
+   "liquidity_discount": 0.20182234029621338,
+   "liquidity_discount_range": [
+    0.12422827886047383,
+    0.27941640173195204
+   ],
+   "premium_range": [
+    0.043992152570593746,
+    0.17397803582467297
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_delta0p35",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.35,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 8.851416198714228,
+   "upper": 8.986731038776433,
+   "width": 0.13531484006220573,
+   "mid": 8.91907361874533,
+   "european": 8.851416198714228,
+   "lower_rule": 8.842013476024963,
+   "early_premium": 0.06765742003110198,
+   "frac_early": 0.3034706115722656,
+   "liquidity_discount": 0.20410087499852025,
+   "liquidity_discount_range": [
+    0.1221793472070054,
+    0.2860224027900351
+   ],
+   "premium_range": [
+    0.0,
+    0.13531484006220573
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_lam0",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 0.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 4.842018731852363,
+   "upper": 4.927537933244206,
+   "width": 0.08551920139184332,
+   "mid": 4.884778332548285,
+   "european": 4.741466574849217,
+   "lower_rule": 4.842018731852363,
+   "early_premium": 0.14331175769906768,
+   "frac_early": 0.3654594421386719,
+   "liquidity_discount": 0.13578444575747461,
+   "liquidity_discount_range": [
+    0.0701030701878187,
+    0.20146582132712965
+   ],
+   "premium_range": [
+    0.10055215700314601,
+    0.18607135839498934
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_lam0p5",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 0.5,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 5.602598890910357,
+   "upper": 5.679070472825643,
+   "width": 0.07647158191528636,
+   "mid": 5.640834681868,
+   "european": 5.499603762399377,
+   "lower_rule": 5.602598890910357,
+   "early_premium": 0.1412309194686232,
+   "frac_early": 0.3529014587402344,
+   "liquidity_discount": 0.1751052190523552,
+   "liquidity_discount_range": [
+    0.12510583409952858,
+    0.22510460400518273
+   ],
+   "premium_range": [
+    0.10299512851097958,
+    0.17946671042626594
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_lam1",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 6.327785873937451,
+   "upper": 6.405098407920022,
+   "width": 0.0773125339825711,
+   "mid": 6.366442140928736,
+   "european": 6.217982632726896,
+   "lower_rule": 6.327785873937451,
+   "early_premium": 0.1484595082018405,
+   "frac_early": 0.3469390869140625,
+   "liquidity_discount": 0.20864351132052938,
+   "liquidity_discount_range": [
+    0.1590838456546626,
+    0.2582031769863953
+   ],
+   "premium_range": [
+    0.10980324121055496,
+    0.18711577519312605
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_lam2",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 2.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 7.654295008563542,
+   "upper": 7.749663215720937,
+   "width": 0.09536820715739491,
+   "mid": 7.70197911214224,
+   "european": 7.530829453626822,
+   "lower_rule": 7.654295008563542,
+   "early_premium": 0.17114965851541797,
+   "frac_early": 0.3407936096191406,
+   "liquidity_discount": 0.26361148489448905,
+   "liquidity_discount_range": [
+    0.20272089540539273,
+    0.32450207438358625
+   ],
+   "premium_range": [
+    0.12346555493672007,
+    0.21883376209411498
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_lam4",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 4.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 9.8699486999458,
+   "upper": 9.99517002779869,
+   "width": 0.12522132785288953,
+   "mid": 9.932559363872244,
+   "european": 9.732453260910196,
+   "lower_rule": 9.8699486999458,
+   "early_premium": 0.20010610296204767,
+   "frac_early": 0.36107635498046875,
+   "liquidity_discount": 0.36142534314936725,
+   "liquidity_discount_range": [
+    0.28860938477708054,
+    0.43424130152165397
+   ],
+   "premium_range": [
+    0.1374954390356038,
+    0.2627167668884933
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_m0",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": 0.0,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 5.971324910005364,
+   "upper": 6.061284988761441,
+   "width": 0.0899600787560777,
+   "mid": 6.016304949383402,
+   "european": 5.906610526722818,
+   "lower_rule": 5.971324910005364,
+   "early_premium": 0.10969442266058405,
+   "frac_early": 0.3520164489746094,
+   "liquidity_discount": 0.16180162122771247,
+   "liquidity_discount_range": [
+    0.10483680881413981,
+    0.21876643364128423
+   ],
+   "premium_range": [
+    0.06471438328254564,
+    0.15467446203862334
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_mild",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 5.0,
+   "lower": 6.3436276361535775,
+   "upper": 6.4308328389672536,
+   "width": 0.08720520281367605,
+   "mid": 6.3872302375604155,
+   "european": 6.250911666405709,
+   "lower_rule": 6.3436276361535775,
+   "early_premium": 0.1363185711547068,
+   "frac_early": 0.348724365234375,
+   "liquidity_discount": 0.18785541468885025,
+   "liquidity_discount_range": [
+    0.133349414607431,
+    0.24236141477026862
+   ],
+   "premium_range": [
+    0.09271596974786878,
+    0.17992117256154483
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_mneg0p05",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.05,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 6.044977059225576,
+   "upper": 6.125966458520288,
+   "width": 0.0809893992947126,
+   "mid": 6.085471758872933,
+   "european": 5.953659098599363,
+   "lower_rule": 6.044977059225576,
+   "early_premium": 0.1318126602735692,
+   "frac_early": 0.3482322692871094,
+   "liquidity_discount": 0.1833773833224095,
+   "liquidity_discount_range": [
+    0.1315772197713736,
+    0.23517754687344627
+   ],
+   "premium_range": [
+    0.09131796062621245,
+    0.17230735992092505
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_mneg0p2",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.2,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 7.396951257163741,
+   "upper": 7.510350328097687,
+   "width": 0.11339907093394608,
+   "mid": 7.453650792630714,
+   "european": 7.273977801800358,
+   "lower_rule": 7.396951257163741,
+   "early_premium": 0.1796729908303556,
+   "frac_early": 0.3381996154785156,
+   "liquidity_discount": 0.25554297265966763,
+   "liquidity_discount_range": [
+    0.18789650602816454,
+    0.32318943929116983
+   ],
+   "premium_range": [
+    0.12297345536338256,
+    0.23637252629732863
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_mneg0p3",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.3,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 8.928079361748118,
+   "upper": 9.088564996126015,
+   "width": 0.1604856343778973,
+   "mid": 9.008322178937068,
+   "european": 8.814413572016315,
+   "lower_rule": 8.928079361748118,
+   "early_premium": 0.1939086069207523,
+   "frac_early": 0.3249359130859375,
+   "liquidity_discount": 0.30032870544135193,
+   "liquidity_discount_range": [
+    0.21042317688244516,
+    0.39023423400026047
+   ],
+   "premium_range": [
+    0.11366578973180275,
+    0.27415142410970006
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_psi0p01",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.01,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 6.409535041715717,
+   "upper": 6.490639673576187,
+   "width": 0.08110463186046957,
+   "mid": 6.450087357645952,
+   "european": 6.315401879203228,
+   "lower_rule": 6.409535041715717,
+   "early_premium": 0.13468547844272383,
+   "frac_early": 0.3488502502441406,
+   "liquidity_discount": 0.12499829460331391,
+   "liquidity_discount_range": [
+    0.07354257999849789,
+    0.17645400920812904
+   ],
+   "premium_range": [
+    0.09413316251248904,
+    0.1752377943729586
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_psi0p25",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.25,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 6.158461814106441,
+   "upper": 6.240233514282338,
+   "width": 0.08177170017589752,
+   "mid": 6.19934766419439,
+   "european": 6.007703708234859,
+   "lower_rule": 6.158461814106441,
+   "early_premium": 0.1916439559595302,
+   "frac_early": 0.3416290283203125,
+   "liquidity_discount": 0.3757379880548761,
+   "liquidity_discount_range": [
+    0.32394873929234613,
+    0.42752723681740523
+   ],
+   "premium_range": [
+    0.15075810587158145,
+    0.23252980604747897
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_psi1",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 1.0,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 5.875874758878468,
+   "upper": 5.956447581952936,
+   "width": 0.08057282307446823,
+   "mid": 5.916161170415702,
+   "european": 5.656331391108399,
+   "lower_rule": 5.875874758878468,
+   "early_premium": 0.259829779307303,
+   "frac_early": 0.3381004333496094,
+   "liquidity_discount": 0.658924481833564,
+   "liquidity_discount_range": [
+    0.6077346716217482,
+    0.710114292045378
+   ],
+   "premium_range": [
+    0.21954336777006933,
+    0.30011619084453756
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_psi1_lam0",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 0.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 1.0,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 4.493471707584385,
+   "upper": 4.57457320619976,
+   "width": 0.08110149861537508,
+   "mid": 4.534022456892073,
+   "european": 4.345335541267957,
+   "lower_rule": 4.493471707584385,
+   "early_premium": 0.18868691562411577,
+   "frac_early": 0.3416328430175781,
+   "liquidity_discount": 0.4865403214136865,
+   "liquidity_discount_range": [
+    0.42306779723226473,
+    0.5500128455951074
+   ],
+   "premium_range": [
+    0.14813616631642823,
+    0.2292376649318033
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_psi1_lam2",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 2.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 1.0,
+   "cost_scale": 1.0,
+   "ell_max": 10.0,
+   "lower": 7.106530483842647,
+   "upper": 7.197690688182108,
+   "width": 0.09116020433946126,
+   "mid": 7.152110586012378,
+   "european": 6.815543282524343,
+   "lower_rule": 7.106530483842647,
+   "early_premium": 0.3365673034880343,
+   "frac_early": 0.3439369201660156,
+   "liquidity_discount": 0.8134800110243514,
+   "liquidity_discount_range": [
+    0.7546934229442215,
+    0.8722665991044813
+   ],
+   "premium_range": [
+    0.2909872013183037,
+    0.38214740565776495
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_scale0",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 0.0,
+   "ell_max": 10.0,
+   "lower": 6.554167572937262,
+   "upper": 6.6207468021970595,
+   "width": 0.06657922925979776,
+   "mid": 6.587457187567161,
+   "european": 6.431367647166092,
+   "lower_rule": 6.554167572937262,
+   "early_premium": 0.15608954040106848,
+   "frac_early": 0.3755683898925781,
+   "liquidity_discount": -0.01237153531789481,
+   "liquidity_discount_range": [
+    -0.05656454862237492,
+    0.03182147798658441
+   ],
+   "premium_range": [
+    0.1227999257711696,
+    0.18937915503096736
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_scale0p5",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 0.5,
+   "ell_max": 10.0,
+   "lower": 6.419365427368621,
+   "upper": 6.500936561896641,
+   "width": 0.08157113452801923,
+   "mid": 6.460150994632631,
+   "european": 6.323545254868668,
+   "lower_rule": 6.419365427368621,
+   "early_premium": 0.13660573976396329,
+   "frac_early": 0.3516044616699219,
+   "liquidity_discount": 0.1149346576166348,
+   "liquidity_discount_range": [
+    0.06324569167804395,
+    0.16662362355522475
+   ],
+   "premium_range": [
+    0.09582017249995367,
+    0.1773913070279729
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_scale2",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 2.0,
+   "ell_max": 10.0,
+   "lower": 6.158028869395968,
+   "upper": 6.240305993968834,
+   "width": 0.08227712457286529,
+   "mid": 6.199167431682401,
+   "european": 6.014274341870943,
+   "lower_rule": 6.158028869395968,
+   "early_premium": 0.18489308981145847,
+   "frac_early": 0.341888427734375,
+   "liquidity_discount": 0.37591822056686475,
+   "liquidity_discount_range": [
+    0.32387625960585087,
+    0.42796018152787774
+   ],
+   "premium_range": [
+    0.14375452752502582,
+    0.2260316520978911
+   ],
+   "crr": null,
+   "euro_cf": null
+  },
+  {
+   "name": "phys_scale4",
+   "cost": "liquidity",
+   "S0": 100.0,
+   "lam": 1.0,
+   "m": -0.1,
+   "delta": 0.15,
+   "psi": 0.05,
+   "cost_scale": 4.0,
+   "ell_max": 10.0,
+   "lower": 5.851027081726905,
+   "upper": 5.929809009585725,
+   "width": 0.07878192785881932,
+   "mid": 5.890418045656315,
+   "european": 5.6395892732002215,
+   "lower_rule": 5.851027081726905,
+   "early_premium": 0.25082877245609314,
+   "frac_early": 0.3400459289550781,
+   "liquidity_discount": 0.6846676065929511,
+   "liquidity_discount_range": [
+    0.6343732439889598,
+    0.7349619691969407
+   ],
+   "premium_range": [
+    0.21143780852668392,
+    0.29021973638550325
+   ],
+   "crr": null,
+   "euro_cf": null
+  }
+ ],
+ "n": 38,
+ "exercise_propensity": {
+  "case": "phys_lam1",
+  "rows": [
+   {
+    "moneyness": "S/K 0.70-0.80",
+    "cells": [
+     {
+      "ell": "ell < 1.25",
+      "states": 17990,
+      "exercise_rate": 0.2659811006114508
+     },
+     {
+      "ell": "1.25-2",
+      "states": 34663,
+      "exercise_rate": 0.051928569367913915
+     },
+     {
+      "ell": "2-4",
+      "states": 23669,
+      "exercise_rate": 0.0019434703620769783
+     },
+     {
+      "ell": "> 4",
+      "states": 20716,
+      "exercise_rate": 0.008785479822359528
+     }
+    ]
+   },
+   {
+    "moneyness": "S/K 0.80-0.90",
+    "cells": [
+     {
+      "ell": "ell < 1.25",
+      "states": 243969,
+      "exercise_rate": 0.09421688821120716
+     },
+     {
+      "ell": "1.25-2",
+      "states": 87692,
+      "exercise_rate": 0.0428089221365689
+     },
+     {
+      "ell": "2-4",
+      "states": 31202,
+      "exercise_rate": 0.0027241843471572337
+     },
+     {
+      "ell": "> 4",
+      "states": 19458,
+      "exercise_rate": 0.011460581765854662
+     }
+    ]
+   },
+   {
+    "moneyness": "S/K 0.90-0.97",
+    "cells": [
+     {
+      "ell": "ell < 1.25",
+      "states": 925126,
+      "exercise_rate": 0.008241039598930308
+     },
+     {
+      "ell": "1.25-2",
+      "states": 145509,
+      "exercise_rate": 0.005133703069913201
+     },
+     {
+      "ell": "2-4",
+      "states": 13621,
+      "exercise_rate": 0.002569561706188973
+     },
+     {
+      "ell": "> 4",
+      "states": 5531,
+      "exercise_rate": 0.01319833664798409
+     }
+    ]
+   }
+  ]
+ }
+}
